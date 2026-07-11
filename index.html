@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -8,24 +9,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<script>
-(function protectAdminPage(){
-  const LOGIN_URL = "https://www.prudle-education.com/log-in-out";
-  const user = localStorage.getItem("username");
-  const role = String(localStorage.getItem("role") || "").trim().toLowerCase();
-  const last = localStorage.getItem("loginDate");
-  const today = new Date().toDateString();
-  const loggedOut = localStorage.getItem("prudleLoggedOut") === "true";
 
-  if(!user || role !== "admin" || last !== today || loggedOut){
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
-    localStorage.removeItem("loginDate");
-    sessionStorage.clear();
-    window.location.replace(LOGIN_URL);
-  }
-})();
-</script>
 
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
@@ -322,29 +306,8 @@ th{
   font-weight:900;
 }
 
-.logout-badge{
-  position:fixed;
-  top:12px;
-  left:12px;
-  z-index:99999;
-  background:#164478;
-  color:#fff;
-  padding:8px 18px;
-  border-radius:30px;
-  border:none;
-  font-size:14px;
-  font-weight:800;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  box-shadow:0 3px 8px rgba(0,0,0,.18);
-  transition:.25s;
-}
-.logout-badge:hover{
-  background:#1e5799;
-  transform:translateY(-2px);
-}
+
+
 
 
 /* ===== دعم العربية وتناسق الحقول ===== */
@@ -526,10 +489,7 @@ th,td{
 
 <body>
 
-<button class="logout-badge" type="button" onclick="logout()">
-  <i class="fa-solid fa-right-from-bracket"></i>
-  Logout
-</button>
+
 
 
 <div class="app">
@@ -1528,53 +1488,6 @@ r => r.paymentStatus === "تم الدفع"
 
 }
 
-const LOGIN_URL = "https://www.prudle-education.com/log-in-out";
-
-function isValidAdminLogin(){
-  const user = localStorage.getItem("username");
-  const role = String(localStorage.getItem("role") || "").trim().toLowerCase();
-  const last = localStorage.getItem("loginDate");
-  const today = new Date().toDateString();
-  const loggedOut = localStorage.getItem("prudleLoggedOut") === "true";
-  return Boolean(user && role === "admin" && last === today && !loggedOut);
-}
-
-function clearLoginData(){
-  localStorage.removeItem("username");
-  localStorage.removeItem("role");
-  localStorage.removeItem("loginDate");
-  localStorage.removeItem("admin");
-  localStorage.removeItem("adminName");
-  sessionStorage.clear();
-}
-
-function logout(){
-  localStorage.setItem("prudleLoggedOut","true");
-  clearLoginData();
-  window.location.replace(LOGIN_URL);
-}
-
-window.addEventListener("pageshow", function(){
-  if(!isValidAdminLogin()){
-    clearLoginData();
-    window.location.replace(LOGIN_URL);
-  }
-});
-
-window.addEventListener("focus", function(){
-  if(!isValidAdminLogin()){
-    clearLoginData();
-    window.location.replace(LOGIN_URL);
-  }
-});
-
-window.addEventListener("storage", function(){
-  if(!isValidAdminLogin()){
-    clearLoginData();
-    window.location.replace(LOGIN_URL);
-  }
-});
-
 function getReportFilterInfo(){
   const departmentValue =
     document.getElementById("departmentFilter")?.value || "الكل";
@@ -1988,6 +1901,7 @@ async function exportExecutivePDF(){
     </div>
 
     <div class="section">
+      <div class="page-break"></div>
       <h2>تفاصيل العملاء المطابقة للفلاتر</h2>
       <table class="details">
         <thead>
@@ -2023,56 +1937,85 @@ async function exportExecutivePDF(){
     await new Promise(resolve=>setTimeout(resolve,300));
 
     const canvas = await html2canvas(report,{
-      scale:2,
+      scale:3,
       useCORS:true,
       backgroundColor:"#ffffff",
       logging:false,
-      windowWidth:1120
+      windowWidth:1120,
+      scrollX:0,
+      scrollY:0
     });
 
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("landscape","pt","a4");
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    const pdf = new jsPDF(
+      "portrait",
+      "pt",
+      "a4"
+    );
+
+    const pageWidth =
+      pdf.internal.pageSize.getWidth();
+
+    const pageHeight =
+      pdf.internal.pageSize.getHeight();
+
     const imgWidth = pageWidth;
-    const renderedHeight = canvas.height * imgWidth / canvas.width;
-    const pageCanvasHeight = Math.floor(canvas.width * pageHeight / pageWidth);
 
-    let sourceY = 0;
-    let pageIndex = 0;
+    const imgHeight =
+      canvas.height * imgWidth / canvas.width;
 
-    while(sourceY < canvas.height){
-      const sliceHeight = Math.min(pageCanvasHeight, canvas.height - sourceY);
-      const pageCanvas = document.createElement("canvas");
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = sliceHeight;
+    const imgData =
+      canvas.toDataURL("image/png",1.0);
 
-      const ctx = pageCanvas.getContext("2d");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0,0,pageCanvas.width,pageCanvas.height);
-      ctx.drawImage(
-        canvas,
-        0,sourceY,canvas.width,sliceHeight,
-        0,0,canvas.width,sliceHeight
+    let heightLeft = imgHeight;
+    let position = 0;
+    let pageNumber = 1;
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      position,
+      imgWidth,
+      imgHeight,
+      undefined,
+      "FAST"
+    );
+
+    heightLeft -= pageHeight;
+
+    while(heightLeft > 0){
+
+      position =
+        heightLeft - imgHeight;
+
+      pdf.addPage(
+        "a4",
+        "portrait"
       );
 
-      if(pageIndex > 0){
-        pdf.addPage("landscape","a4");
-      }
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        position,
+        imgWidth,
+        imgHeight,
+        undefined,
+        "FAST"
+      );
 
-      const sliceImg = pageCanvas.toDataURL("image/jpeg",0.95);
-      const sliceHeightPt = sliceHeight * pageWidth / canvas.width;
-      pdf.addImage(sliceImg,"JPEG",0,0,pageWidth,sliceHeightPt,"FAST");
-
-      sourceY += sliceHeight;
-      pageIndex++;
+      heightLeft -= pageHeight;
+      pageNumber++;
     }
 
     const filenameDepartment =
       filterInfo.department === "الكل"
         ? "All_Departments"
-        : String(filterInfo.department).replace(/\s+/g,"_");
+        : String(filterInfo.department)
+            .replace(/\s+/g,"_")
+            .replace(/[^\w\u0600-\u06FF-]/g,"");
 
     pdf.save(
       "Prudle_CRM_Report_" +
@@ -2083,15 +2026,33 @@ async function exportExecutivePDF(){
     );
 
   }catch(error){
-    console.error(error);
-    alert("حدث خطأ أثناء إنشاء تقرير PDF");
+
+    console.error(
+      "PDF export error:",
+      error
+    );
+
+    alert(
+      "حدث خطأ أثناء إنشاء تقرير PDF"
+    );
+
   }finally{
-    report.remove();
-    if(oldButton && oldButton.tagName === "BUTTON"){
-      oldButton.disabled = false;
-      oldButton.textContent = "تقرير إداري PDF";
+
+    if(report && report.parentNode){
+      report.remove();
     }
+
+    if(
+      oldButton &&
+      oldButton.tagName === "BUTTON"
+    ){
+      oldButton.disabled = false;
+      oldButton.textContent =
+        "تقرير إداري PDF";
+    }
+
   }
+
 }
 
 loadLeads();
