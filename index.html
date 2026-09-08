@@ -518,6 +518,12 @@ th,td{
         <option>اختبار تحديد المستوى</option>
       </select>
     </div>
+    <div>
+      <label>الفرع</label>
+      <select id="branch">
+        <option value="">اختر الفرع</option>
+      </select>
+    </div>
 <div>
   <label>القسم</label>
   <select id="department">
@@ -626,6 +632,18 @@ th,td{
 </div>
 
 <div class="card">
+  <h2>إدارة الفروع</h2>
+  <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <div style="flex:1;min-width:240px">
+      <label>اسم الفرع الجديد</label>
+      <input type="text" id="newBranchName" placeholder="مثال: فرع الروضة" onkeydown="if(event.key==='Enter'){event.preventDefault();addBranch();}">
+    </div>
+    <button type="button" class="green" onclick="addBranch()" style="min-height:46px">إضافة فرع جديد</button>
+  </div>
+  <div style="margin-top:10px;color:#64748b;font-size:13px">بعد الإضافة سيظهر الفرع تلقائيًا في نموذج العميل وفلتر الفروع.</div>
+</div>
+
+<div class="card">
   <h2>لوحة الإدارة</h2>
 
   <div class="kpis">
@@ -683,6 +701,13 @@ flex-wrap:wrap;
 <div class="grid" style="margin-bottom:14px">
 
   <div>
+    <label>الفرع</label>
+    <select id="branchFilter" onchange="renderAll()">
+      <option value="الكل">الكل</option>
+    </select>
+  </div>
+
+  <div>
     <label>القسم</label>
     <select id="departmentFilter" onchange="renderAll()">
       <option value="الكل">الكل</option>
@@ -714,6 +739,7 @@ flex-wrap:wrap;
         <th>م</th>
         <th>تاريخ الاستلام</th>
         <th>مصدر العميل</th>
+        <th>الفرع</th>
         <th>اسم العميل</th>
         <th>رقم الجوال</th>
         <th>الجنس</th>
@@ -748,6 +774,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let LEADS = [];
+const DEFAULT_BRANCHES = ["الحمدانية","الزهراء","الجموم"];
+let BRANCHES = [...DEFAULT_BRANCHES];
 let PAYMENT_CHART = null;
 let SOURCE_CHARTS = {};
 function val(id){
@@ -756,6 +784,66 @@ function val(id){
 
 function checked(id){
   return document.getElementById(id).checked;
+}
+
+function normalizeBranchName(value){
+  return String(value || "").trim().replace(/\s+/g," ");
+}
+
+function escapeOptionValue(value){
+  return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function refreshBranchOptions(){
+  const branchSelect = document.getElementById("branch");
+  const branchFilter = document.getElementById("branchFilter");
+  if(!branchSelect || !branchFilter) return;
+
+  const selectedBranch = branchSelect.value;
+  const selectedFilter = branchFilter.value || "الكل";
+  const names = [...new Set([
+    ...BRANCHES,
+    ...LEADS.map(row=>normalizeBranchName(row.branch)).filter(Boolean)
+  ])].sort((a,b)=>a.localeCompare(b,"ar"));
+
+  branchSelect.innerHTML = '<option value="">اختر الفرع</option>' +
+    names.map(name=>`<option value="${escapeOptionValue(name)}">${escapeOptionValue(name)}</option>`).join("");
+  branchFilter.innerHTML = '<option value="الكل">الكل</option>' +
+    names.map(name=>`<option value="${escapeOptionValue(name)}">${escapeOptionValue(name)}</option>`).join("");
+
+  if(names.includes(selectedBranch)) branchSelect.value = selectedBranch;
+  if(selectedFilter === "الكل" || names.includes(selectedFilter)) branchFilter.value = selectedFilter;
+}
+
+async function addBranch(){
+  const input = document.getElementById("newBranchName");
+  const name = normalizeBranchName(input?.value);
+  if(!name){
+    alert("اكتب اسم الفرع الجديد");
+    input?.focus();
+    return;
+  }
+  if(BRANCHES.some(branch=>branch.toLocaleLowerCase("ar") === name.toLocaleLowerCase("ar"))){
+    alert("هذا الفرع مضاف مسبقًا");
+    return;
+  }
+
+  try{
+    const duplicate = await db.collection("CustomerBranches").where("name","==",name).limit(1).get();
+    if(!duplicate.empty){
+      alert("هذا الفرع مضاف مسبقًا");
+      return;
+    }
+    await db.collection("CustomerBranches").add({
+      name,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = "";
+    alert("تمت إضافة الفرع بنجاح");
+  }catch(error){
+    console.error("Add branch error:",error);
+    alert("تعذرت إضافة الفرع. تحقق من الاتصال وصلاحيات قاعدة البيانات");
+  }
 }
 function syncChecksFromStage(){
 
@@ -935,6 +1023,7 @@ async function saveLead(){
   const data = {
     receiveDate: val("receiveDate"),
     source: val("source"),
+    branch: val("branch"),
     department: val("department"),
     customerName: val("customerName"),
 email: val("email"),
@@ -978,6 +1067,7 @@ function clearForm(){
   document.getElementById("editId").value = "";
   document.getElementById("receiveDate").value = "";
   document.getElementById("source").value = "";
+  document.getElementById("branch").value = "";
   document.getElementById("department").value = "";
  document.getElementById("customerName").value = "";
 document.getElementById("email").value = "";
@@ -1006,6 +1096,11 @@ function editLead(id){
   document.getElementById("editId").value = r.id;
   document.getElementById("receiveDate").value = r.receiveDate || "";
   document.getElementById("source").value = r.source || "";
+  if(r.branch && !BRANCHES.includes(r.branch)){
+    BRANCHES.push(r.branch);
+    refreshBranchOptions();
+  }
+  document.getElementById("branch").value = r.branch || "";
   document.getElementById("department").value = r.department || "";
   document.getElementById("customerName").value = r.customerName || "";
 document.getElementById("email").value = r.email || "";
@@ -1029,10 +1124,15 @@ async function deleteLead(id){
 }
 function getFilteredLeads(){
 
+  const branch = document.getElementById("branchFilter")?.value || "الكل";
   const dep = document.getElementById("departmentFilter")?.value || "الكل";
   const dateFilter = document.getElementById("dateFilter")?.value || "all";
 
   return LEADS.filter(r=>{
+
+    if(branch !== "الكل" && r.branch !== branch){
+      return false;
+    }
 
     if(dep !== "الكل" && r.department !== dep){
       return false;
@@ -1108,6 +1208,7 @@ function renderTable(){
 ${r.email||""}
 ${r.phone||""}
 ${r.source||""}
+${r.branch||""}
 ${r.stage||""}
     `.toLowerCase();
 
@@ -1132,6 +1233,7 @@ ${
 }
 </td>
         <td>${r.source || ""}</td>
+        <td>${r.branch || ""}</td>
         <td>
   <div style="font-weight:900;color:#164478">
     ${r.customerName || ""}
@@ -1188,7 +1290,7 @@ ${
   });
 
   document.getElementById("leadsBody").innerHTML =
-   html || `<tr><td colspan="17">لا توجد بيانات</td></tr>`;
+   html || `<tr><td colspan="18">لا توجد بيانات</td></tr>`;
 }
 function renderSourceCards(){
 
@@ -1489,6 +1591,8 @@ r => r.paymentStatus === "تم الدفع"
 }
 
 function getReportFilterInfo(){
+  const branchValue =
+    document.getElementById("branchFilter")?.value || "الكل";
   const departmentValue =
     document.getElementById("departmentFilter")?.value || "الكل";
 
@@ -1504,11 +1608,14 @@ function getReportFilterInfo(){
   };
 
   return {
+    branch: branchValue,
     department: departmentValue,
     dateKey: dateValue,
     dateLabel: dateLabels[dateValue] || dateValue,
     description:
-      "Department: " +
+      "Branch: " +
+      (branchValue === "الكل" ? "All" : branchValue) +
+      " | Department: " +
       (departmentValue === "الكل" ? "All" : departmentValue) +
       " | Period: " +
       (dateLabels[dateValue] || dateValue)
@@ -1548,17 +1655,35 @@ function loadLeads(){
         });
       });
 
+     refreshBranchOptions();
      renderAll();
 
     });
 
+}
+
+function loadBranches(){
+  db.collection("CustomerBranches")
+    .onSnapshot(snap=>{
+      const savedBranches = [];
+      snap.forEach(doc=>{
+        const name = normalizeBranchName(doc.data().name);
+        if(name) savedBranches.push(name);
+      });
+      BRANCHES = [...new Set([...DEFAULT_BRANCHES,...savedBranches])];
+      refreshBranchOptions();
+    },error=>{
+      console.error("Load branches error:",error);
+      BRANCHES = [...DEFAULT_BRANCHES];
+      refreshBranchOptions();
+    });
 }
 function exportLeadsCSV(){
 
   const rows = getFilteredLeads();
 
   let csv = "\uFEFF";
-  csv += "الاسم,رقم الجوال,الإيميل,مصدر العميل,التاريخ والوقت\n";
+  csv += "الاسم,رقم الجوال,الإيميل,مصدر العميل,الفرع,التاريخ والوقت\n";
 
   rows.forEach(r=>{
     const line = [
@@ -1566,6 +1691,7 @@ function exportLeadsCSV(){
       r.phone || "",
       r.email || "",
       r.source || "",
+      r.branch || "",
       r.receiveDate || ""
     ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
 
@@ -1636,8 +1762,10 @@ async function importLeadsCSV(event){
     const phone = (cols[1] || "").trim();
     const email = (cols[2] || "").trim();
     const source = (cols[3] || "").trim();
+    const hasBranchColumn = cols.length >= 6;
+    const branch = hasBranchColumn ? (cols[4] || "").trim() : "";
 
-    let receiveDate = (cols[4] || "").trim();
+    let receiveDate = (hasBranchColumn ? cols[5] : cols[4] || "").trim();
 
     // إذا التاريخ فيه وقت مثل:
     // 2026-06-25 8:19:45
@@ -1659,6 +1787,7 @@ async function importLeadsCSV(event){
       phone,
       email,
       source,
+      branch,
       receiveDate,
 
       department:"",
@@ -1778,6 +1907,7 @@ async function exportExecutivePDF(){
       <td>${escapeHTML(row.customerName || "-")}</td>
       <td class="ltr">${escapeHTML(row.phone || "-")}</td>
       <td>${escapeHTML(row.source || "-")}</td>
+      <td>${escapeHTML(row.branch || "-")}</td>
       <td>${escapeHTML(row.department || "-")}</td>
       <td>${Number(row.callsCount || 0)}</td>
       <td>${row.attendedPlacement ? "نعم" : "لا"}</td>
@@ -1840,6 +1970,7 @@ async function exportExecutivePDF(){
       <div>
         <h1>تقرير إدارة العملاء - معهد برودل</h1>
         <div class="sub">
+          الفرع: ${escapeHTML(filterInfo.branch)}<br>
           القسم: ${escapeHTML(filterInfo.department)}<br>
           الفترة: ${escapeHTML(filterInfo.dateLabel)}
         </div>
@@ -1910,7 +2041,8 @@ async function exportExecutivePDF(){
             <th style="width:11%">اسم العميل</th>
             <th style="width:9%">الجوال</th>
             <th style="width:9%">المصدر</th>
-            <th style="width:8%">القسم</th>
+            <th style="width:7%">الفرع</th>
+            <th style="width:7%">القسم</th>
             <th style="width:5%">الاتصالات</th>
             <th style="width:6%">الحضور</th>
             <th style="width:6%">مسجل</th>
@@ -2055,6 +2187,7 @@ async function exportExecutivePDF(){
 
 }
 
+loadBranches();
 loadLeads();
 </script>
 
