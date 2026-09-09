@@ -592,9 +592,9 @@ th,td{
   <label>تم التواصل</label>
 </div>
 
-<div class="check-row" style="display:none">
-  <input type="checkbox" id="attendedPlacement">
-  <label>حضر الاختبار</label>
+<div class="check-row">
+  <input type="checkbox" id="attendedPlacement" onchange="syncStageFromAttendance()">
+  <label>حضر</label>
 </div>
 
     <div class="check-row">
@@ -849,10 +849,17 @@ function syncChecksFromStage(){
 
   const stageInput = document.getElementById("stage");
   const placementDate = val("placementDate");
+  const attendedInput = document.getElementById("attendedPlacement");
+
+  if(stageInput.value === "حضر الاختبار"){
+    attendedInput.checked = true;
+  }
 
   if(placementDate){
 
-    stageInput.value = "تم تحديد موعد";
+    stageInput.value = attendedInput.checked
+      ? "حضر الاختبار"
+      : "تم تحديد موعد";
     stageInput.disabled = true;
 
   }else{
@@ -868,8 +875,18 @@ function syncChecksFromStage(){
     stage === "تم تحديد موعد" ||
     stage === "حضر الاختبار";
 
-  document.getElementById("attendedPlacement").checked =
-    stage === "حضر الاختبار";
+}
+
+function syncStageFromAttendance(){
+  const attended = document.getElementById("attendedPlacement").checked;
+  const stageInput = document.getElementById("stage");
+
+  if(attended){
+    document.getElementById("contacted").checked = true;
+    stageInput.value = "حضر الاختبار";
+  }else if(stageInput.value === "حضر الاختبار"){
+    stageInput.value = val("placementDate") ? "تم تحديد موعد" : "جديد";
+  }
 }
 
 function yesNo(v){
@@ -1108,8 +1125,10 @@ document.getElementById("phone").value = r.phone || "";
   document.getElementById("gender").value = r.gender || "";
   document.getElementById("callsCount").value = r.callsCount || 0;
   document.getElementById("placementDate").value = r.placementDate || "";
-  document.getElementById("stage").value = r.stage || "جديد";
+document.getElementById("stage").value = r.stage || "جديد";
 syncChecksFromStage();
+  document.getElementById("attendedPlacement").checked = !!r.attendedPlacement;
+  syncStageFromAttendance();
   document.getElementById("paymentStatus").value = r.paymentStatus || "";
   document.getElementById("notes").value = r.notes || "";
   document.getElementById("interested").checked = !!r.interested;
