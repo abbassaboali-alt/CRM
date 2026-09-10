@@ -1,902 +1,490 @@
 
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
-
 <head>
-
 <meta charset="UTF-8">
-
 <title>Prudle | متابعة العملاء</title>
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0">
-
-<meta http-equiv="Cache-Control" content="no-cache,
-no-store, must-revalidate">
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-
 <meta http-equiv="Expires" content="0">
 
 
 
-<script
-src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
-
-<script
-src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script
-src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script
-src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
-<script
-src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-
 body{
-
-  margin:0;
-
-  background:#f4f7fb;
-
- 
-font-family:Arial,Tahoma,sans-serif;
-
-  color:#1f2937;
-
+  margin:0;
+  background:#f4f7fb;
+  font-family:Arial,Tahoma,sans-serif;
+  color:#1f2937;
 }
-
 .app{
-
-  max-width:1400px;
-
-  margin:auto;
-
-  padding:20px;
-
+  max-width:1400px;
+  margin:auto;
+  padding:20px;
 }
-
 h1{
-
-  text-align:center;
-
-  color:#164478;
-
-  margin-bottom:20px;
-
+  text-align:center;
+  color:#164478;
+  margin-bottom:20px;
 }
-
 .card{
-
-  background:#fff;
-
-  border-radius:18px;
-
-  padding:20px;
-
-  margin-bottom:20px;
-
-  box-shadow:0 6px 20px
-rgba(0,0,0,.08);
-
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,.08);
 }
-
 .grid{
-
-  display:grid;
-
- 
-grid-template-columns:repeat(4,1fr);
-
-  gap:14px;
-
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
 }
-
 label{
+  display:block;
+  width:fit-content;
+  margin:0 auto 10px auto;
 
-  display:block;
+  background:linear-gradient(
+    135deg,
+    #164478,
+    #1e5da8
+  );
 
-  width:fit-content;
+  color:#fff;
+  padding:10px 20px;
+  border-radius:999px;
 
-  margin:0 auto 10px auto;
+  font-size:15px;
+  font-weight:900;
 
- 
-background:linear-gradient(
-
-    135deg,
-
-    #164478,
-
-    #1e5da8
-
-  );
-
-  color:#fff;
-
-  padding:10px 20px;
-
-  border-radius:999px;
-
-  font-size:15px;
-
-  font-weight:900;
-
-  box-shadow:
-
-    0 6px 16px
-rgba(22,68,120,.25);
-
+  box-shadow:
+    0 6px 16px rgba(22,68,120,.25);
 }
-
 input,select,textarea{
-
-  width:100%;
-
-  box-sizing:border-box;
-
-  padding:12px;
-
-  border:1px solid #d1d5db;
-
-  border-radius:12px;
-
-  font-size:15px;
-
-  margin-top:6px;
-
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  font-size:15px;
+  margin-top:6px;
 }
-
 textarea{height:80px;resize:vertical}
-
 .check-row{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:10px;
-
-  background:#f8fafc;
-
-  padding:12px;
-
-  border-radius:12px;
-
-  border:1px solid #e5e7eb;
-
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#f8fafc;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
 }
-
 .check-row input{
-
-  width:auto;
-
-  transform:scale(1.3);
-
+  width:auto;
+  transform:scale(1.3);
 }
-
 .actions{
-
-  display:flex;
-
-  gap:10px;
-
-  flex-wrap:wrap;
-
-  margin-top:18px;
-
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
 }
-
 button{
-
-  border:none;
-
-  border-radius:12px;
-
-  padding:12px 22px;
-
-  font-weight:900;
-
-  cursor:pointer;
-
-  background:#164478;
-
-  color:white;
-
+  border:none;
+  border-radius:12px;
+  padding:12px 22px;
+  font-weight:900;
+  cursor:pointer;
+  background:#164478;
+  color:white;
 }
-
 button.gray{background:#6b7280}
-
 button.red{background:#dc2626}
-
 button.green{background:#16a34a}
-
 button.whatsapp{
-
-  background:#25D366;
-
-  color:#fff;
-
-  padding:9px 14px;
-
-  font-size:13px;
-
+  background:#25D366;
+  color:#fff;
+  padding:9px 14px;
+  font-size:13px;
 }
 
 .whatsapp-box{
-
-  display:flex;
-
-  gap:6px;
-
-  justify-content:center;
-
-  flex-wrap:wrap;
-
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
 .whatsapp-select{
-
-  width:150px;
-
-  padding:8px;
-
-  font-size:12px;
-
-  border-radius:10px;
-
+  width:150px;
+  padding:8px;
+  font-size:12px;
+  border-radius:10px;
 }
-
 .kpis{
-
-  display:grid;
-
-  grid-template-columns:repeat(5,1fr);
-
-  gap:14px;
-
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
 }
-
 .kpi{
-
- 
-background:linear-gradient(135deg,#164478,#1e5da8);
-
-  color:#fff;
-
-  border-radius:18px;
-
-  padding:20px;
-
-  text-align:center;
-
+  background:linear-gradient(135deg,#164478,#1e5da8);
+  color:#fff;
+  border-radius:18px;
+  padding:20px;
+  text-align:center;
 }
-
 .kpi b{
-
-  display:block;
-
-  font-size:30px;
-
-  margin-top:8px;
-
+  display:block;
+  font-size:30px;
+  margin-top:8px;
 }
-
 .search{
-
-  max-width:400px;
-
-  margin-bottom:12px;
-
+  max-width:400px;
+  margin-bottom:12px;
 }
-
 table{
-
-  width:100%;
-
-  border-collapse:collapse;
-
-  background:#fff;
-
-  overflow:hidden;
-
-  border-radius:14px;
-
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  overflow:hidden;
+  border-radius:14px;
 }
-
 th,td{
-
-  border:1px solid #e5e7eb;
-
-  padding:10px;
-
-  text-align:center;
-
-  font-size:13px;
-
+  border:1px solid #e5e7eb;
+  padding:10px;
+  text-align:center;
+  font-size:13px;
 }
-
 th{
-
-  background:#164478;
-
-  color:white;
-
+  background:#164478;
+  color:white;
 }
-
 .badge{
-
-  padding:5px 10px;
-
-  border-radius:999px;
-
-  font-weight:900;
-
-  display:inline-block;
-
+  padding:5px 10px;
+  border-radius:999px;
+  font-weight:900;
+  display:inline-block;
 }
-
 .source-cards{
-
-  display:grid;
-
- 
-grid-template-columns:repeat(4,1fr);
-
-  gap:18px;
-
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
 }
 
 .source-card{
-
-  background:#fff;
-
-  border-radius:18px;
-
-  padding:16px;
-
-  box-shadow:0 6px 18px
-rgba(0,0,0,.08);
-
-  border:1px solid #e5e7eb;
-
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  border:1px solid #e5e7eb;
 }
 
 .source-title{
-
-  display:flex;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  font-weight:900;
-
-  color:#164478;
-
-  font-size:18px;
-
-  margin-bottom:12px;
-
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:900;
+  color:#164478;
+  font-size:18px;
+  margin-bottom:12px;
 }
 
 .source-mini-stats{
-
-  display:grid;
-
- 
-grid-template-columns:repeat(3,1fr);
-
-  text-align:center;
-
-  gap:8px;
-
-  margin-bottom:10px;
-
-  font-weight:900;
-
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  text-align:center;
+  gap:8px;
+  margin-bottom:10px;
+  font-weight:900;
 }
 
 .source-mini-stats span{
-
-  display:block;
-
-  font-size:20px;
-
-  margin-top:4px;
-
+  display:block;
+  font-size:20px;
+  margin-top:4px;
 }
 
 .mini-chart-box{
-
-  height:100px;
-
-  margin-top:8px;
-
+  height:100px;
+  margin-top:8px;
 }
-
 .yes{background:#dcfce7;color:#166534}
-
 .no{background:#fee2e2;color:#991b1b}
-
 @keyframes appointmentBlink{
+  0%{
+    background:#fef3c7;
+    color:#92400e;
+    box-shadow:0 0 0 rgba(245,158,11,0);
+  }
 
-  0%{
+  50%{
+    background:#f59e0b;
+    color:#fff;
+    box-shadow:0 0 25px rgba(245,158,11,.9);
+  }
 
-    background:#fef3c7;
-
-    color:#92400e;
-
-    box-shadow:0 0 0
-rgba(245,158,11,0);
-
-  }
-
-  50%{
-
-    background:#f59e0b;
-
-    color:#fff;
-
-    box-shadow:0 0 25px
-rgba(245,158,11,.9);
-
-  }
-
-  100%{
-
-    background:#fef3c7;
-
-    color:#92400e;
-
-    box-shadow:0 0 0
-rgba(245,158,11,0);
-
-  }
-
+  100%{
+    background:#fef3c7;
+    color:#92400e;
+    box-shadow:0 0 0 rgba(245,158,11,0);
+  }
 }
 
 .appointment-alert{
-
-  display:inline-block;
-
-  padding:8px 14px;
-
-  border-radius:999px;
-
-  font-weight:900;
-
-  animation:appointmentBlink 1s
-infinite;
-
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:900;
+  animation:appointmentBlink 1s infinite;
 }
-
 @media(max-width:900px){
-
-  .grid,.kpis,.source-cards{grid-template-columns:1fr}
-
-  table{font-size:12px}
-
-  .app{padding:10px}
-
+  .grid,.kpis,.source-cards{grid-template-columns:1fr}
+  table{font-size:12px}
+  .app{padding:10px}
 }
-
 .table-scroll{
-
-  width:100%;
-
-  overflow:auto;
-
-  border-radius:18px;
-
-  border:1px solid #e5e7eb;
-
-  background:#fff;
-
+  width:100%;
+  overflow:auto;
+  border-radius:18px;
+  border:1px solid #e5e7eb;
+  background:#fff;
 }
 
 .crm-table{
-
-  width:100%;
-
-  min-width:1450px;
-
-  border-collapse:separate;
-
-  border-spacing:0;
-
+  width:100%;
+  min-width:1450px;
+  border-collapse:separate;
+  border-spacing:0;
 }
 
 .crm-table th{
-
-  position:sticky;
-
-  top:0;
-
-  z-index:5;
-
-  background:#164478;
-
-  color:#fff;
-
-  font-size:13px;
-
-  padding:14px 10px;
-
-  white-space:nowrap;
-
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:#164478;
+  color:#fff;
+  font-size:13px;
+  padding:14px 10px;
+  white-space:nowrap;
 }
 
 .crm-table td{
-
-  padding:14px 10px;
-
-  font-size:14px;
-
-  vertical-align:middle;
-
-  border-bottom:1px solid #eef2f7;
-
-  border-left:1px solid #eef2f7;
-
-  background:#fff;
-
+  padding:14px 10px;
+  font-size:14px;
+  vertical-align:middle;
+  border-bottom:1px solid #eef2f7;
+  border-left:1px solid #eef2f7;
+  background:#fff;
 }
 
 .crm-table tbody tr:hover td{
-
-  background:#f8fbff;
-
+  background:#f8fbff;
 }
 
 .stage-green{
-
-  display:inline-block;
-
-  background:#dcfce7;
-
-  color:#166534;
-
-  padding:8px 14px;
-
-  border-radius:999px;
-
-  font-weight:900;
-
+  display:inline-block;
+  background:#dcfce7;
+  color:#166534;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:900;
 }
 
 .stage-normal{
-
-  display:inline-block;
-
-  background:#f3f4f6;
-
-  color:#374151;
-
-  padding:8px 14px;
-
-  border-radius:999px;
-
-  font-weight:900;
-
+  display:inline-block;
+  background:#f3f4f6;
+  color:#374151;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:900;
 }
 
 
 
 
 
-/* ===== دعم العربية وتناسق الحقول
-===== */
-
-@import
-url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+/* ===== دعم العربية وتناسق الحقول ===== */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
 
 html{
-
-  direction:rtl;
-
+  direction:rtl;
 }
 
 body,
-
 button,
-
 input,
-
 select,
-
 textarea,
-
 table{
-
- 
-font-family:'Tajawal',Arial,Tahoma,sans-serif !important;
-
+  font-family:'Tajawal',Arial,Tahoma,sans-serif !important;
 }
 
 body{
-
-  direction:rtl;
-
-  text-align:right;
-
+  direction:rtl;
+  text-align:right;
 }
 
 .grid > div{
-
-  min-width:0;
-
+  min-width:0;
 }
 
 label{
-
-  width:auto;
-
-  max-width:100%;
-
-  min-height:42px;
-
-  margin:0 0 8px 0;
-
-  padding:9px 16px;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  text-align:center;
-
-  line-height:1.5;
-
-  white-space:normal;
-
+  width:auto;
+  max-width:100%;
+  min-height:42px;
+  margin:0 0 8px 0;
+  padding:9px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.5;
+  white-space:normal;
 }
 
 input,
-
 select,
-
 textarea{
-
-  direction:rtl;
-
-  text-align:right;
-
-  min-height:48px;
-
-  line-height:1.5;
-
-  padding:12px 14px;
-
-  font-size:15px;
-
-  font-weight:500;
-
-  color:#1f2937;
-
-  background:#fff;
-
+  direction:rtl;
+  text-align:right;
+  min-height:48px;
+  line-height:1.5;
+  padding:12px 14px;
+  font-size:15px;
+  font-weight:500;
+  color:#1f2937;
+  background:#fff;
 }
 
 textarea{
-
-  min-height:110px;
-
-  height:auto;
-
+  min-height:110px;
+  height:auto;
 }
 
 input::placeholder,
-
 textarea::placeholder{
-
-  color:#94a3b8;
-
-  opacity:1;
-
-  text-align:right;
-
+  color:#94a3b8;
+  opacity:1;
+  text-align:right;
 }
 
 input:focus,
-
 select:focus,
-
 textarea:focus{
-
-  outline:none;
-
-  border-color:#164478;
-
-  box-shadow:0 0 0 3px
-rgba(22,68,120,.12);
-
+  outline:none;
+  border-color:#164478;
+  box-shadow:0 0 0 3px rgba(22,68,120,.12);
 }
 
-/* الحقول التي يجب أن تظهر من اليسار
-لليمين */
-
+/* الحقول التي يجب أن تظهر من اليسار لليمين */
 input[type="email"],
-
 input[type="tel"],
-
 input[type="number"],
-
 input[type="datetime-local"],
-
 #phone,
-
 #email,
-
 #callsCount,
-
 #receiveDate,
-
 #placementDate{
-
-  direction:ltr;
-
-  text-align:left;
-
+  direction:ltr;
+  text-align:left;
 }
 
 input[type="email"]::placeholder,
-
 input[type="tel"]::placeholder,
-
 input[type="number"]::placeholder{
-
-  text-align:left;
-
+  text-align:left;
 }
 
 select{
-
-  text-align-last:right;
-
+  text-align-last:right;
 }
 
 .check-row{
-
-  direction:rtl;
-
-  justify-content:flex-start;
-
-  min-height:48px;
-
+  direction:rtl;
+  justify-content:flex-start;
+  min-height:48px;
 }
 
 .check-row label{
-
-  margin:0;
-
-  padding:0;
-
-  min-height:auto;
-
-  background:none;
-
-  color:#1f2937;
-
-  box-shadow:none;
-
-  border-radius:0;
-
-  justify-content:flex-start;
-
-  text-align:right;
-
+  margin:0;
+  padding:0;
+  min-height:auto;
+  background:none;
+  color:#1f2937;
+  box-shadow:none;
+  border-radius:0;
+  justify-content:flex-start;
+  text-align:right;
 }
 
 .check-row input{
-
-  flex:0 0 auto;
-
-  min-height:auto;
-
-  margin:0;
-
+  flex:0 0 auto;
+  min-height:auto;
+  margin:0;
 }
 
 .actions{
-
-  direction:rtl;
-
-  align-items:center;
-
+  direction:rtl;
+  align-items:center;
 }
 
 .actions button,
-
 .actions > label{
-
-  min-height:46px;
-
-  display:inline-flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  margin:0;
-
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
 }
 
 .search{
-
-  direction:rtl;
-
-  text-align:right;
-
+  direction:rtl;
+  text-align:right;
 }
 
 th,td{
-
-  direction:rtl;
-
-  text-align:center;
-
-  vertical-align:middle;
-
-  line-height:1.6;
-
+  direction:rtl;
+  text-align:center;
+  vertical-align:middle;
+  line-height:1.6;
 }
 
 .crm-table td,
-
 .crm-table th{
-
-  white-space:normal;
-
-  word-break:break-word;
-
+  white-space:normal;
+  word-break:break-word;
 }
 
 .whatsapp-select{
-
-  direction:rtl;
-
-  text-align:right;
-
-  text-align-last:right;
-
+  direction:rtl;
+  text-align:right;
+  text-align-last:right;
 }
 
 @media(max-width:900px){
+  input,select,textarea{
+    font-size:16px;
+  }
 
-  input,select,textarea{
+  label{
+    width:100%;
+  }
 
-    font-size:16px;
-
-  }
-
-  label{
-
-    width:100%;
-
-  }
-
-  .actions > *{
-
-    width:100%;
-
-  }
-
+  .actions > *{
+    width:100%;
+  }
 }
 
 </style>
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
@@ -909,3416 +497,1699 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <h1>نظام متابعة عملاء برودل</h1>
 
 <div class="card">
+  <h2>إضافة / تعديل عميل</h2>
 
-  <h2>إضافة / تعديل عميل</h2>
+  <input type="hidden" id="editId">
 
-  <input
-type="hidden" id="editId">
+  <div class="grid">
 
-  <div
-class="grid">
+    <div>
+      <label>التاريخ</label>
+      <input type="datetime-local" id="receiveDate">
+    </div>
 
-    <div>
-
-      <label>التاريخ</label>
-
-      <input
-type="datetime-local" id="receiveDate">
-
-    </div>
-
-    <div>
-
-      <label>مصدر العميل</label>
-
-      <select
-id="source">
-
-        <option
-value="">اختر المصدر</option>
-
-        <option>سناب شات</option>
-
-        <option>تيك توك</option>
-
-        <option>موقع المعهد</option>
-
-        <option>اختبار تحديد المستوى</option>
-
-      </select>
-
-    </div>
-
-    <div>
-
-      <label>الفرع</label>
-
-      <select
-id="branch">
-
-        <option
-value="">اختر الفرع</option>
-
-      </select>
-
-    </div>
-
+    <div>
+      <label>مصدر العميل</label>
+      <select id="source">
+        <option value="">اختر المصدر</option>
+        <option>سناب شات</option>
+        <option>تيك توك</option>
+        <option>موقع المعهد</option>
+        <option>اختبار تحديد المستوى</option>
+      </select>
+    </div>
+    <div>
+      <label>الفرع</label>
+      <select id="branch">
+        <option value="">اختر الفرع</option>
+      </select>
+    </div>
 <div>
-
-  <label>القسم</label>
-
-  <select
-id="department">
-
-    <option
-value="">اختر القسم</option>
-
-    <option>قسم الرجال</option>
-
-    <option>السيدات</option>
-
-    <option>أطفال</option>
-
-    <option>أطفال سيدات</option>
-
-    <option>أونلاين</option>
-
-  </select>
-
+  <label>القسم</label>
+  <select id="department">
+    <option value="">اختر القسم</option>
+    <option>قسم الرجال</option>
+    <option>السيدات</option>
+    <option>أطفال</option>
+    <option>أطفال سيدات</option>
+    <option>أونلاين</option>
+  </select>
 </div>
-
-    <div>
-
-      <label>اسم العميل</label>
-
-      <input
-type="text" id="customerName">
-
-    </div>
-
+    <div>
+      <label>اسم العميل</label>
+      <input type="text" id="customerName">
+    </div>
 <div>
-
-  <label>الإيميل</label>
-
-  <input
-type="email" id="email" placeholder="اختياري">
-
+  <label>الإيميل</label>
+  <input type="email" id="email" placeholder="اختياري">
 </div>
+    <div>
+      <label>الجوال</label>
+      <input type="text" id="phone">
+    </div>
 
-    <div>
+    <div>
+      <label>الجنس</label>
+      <select id="gender">
+        <option value="">اختر الجنس</option>
+        <option>ذكر</option>
+        <option>أنثى</option>
+      </select>
+    </div>
 
-      <label>الجوال</label>
+    <div>
+      <label>عدد الاتصالات</label>
+      <input type="number" id="callsCount" min="0" value="0">
+    </div>
 
-      <input
-type="text" id="phone">
+    <div>
+      <label>موعد اختبار تحديد المستوى</label>
+      <input type="datetime-local" id="placementDate" onchange="syncChecksFromStage()">
+    </div>
 
-    </div>
-
-    <div>
-
-      <label>الجنس</label>
-
-      <select
-id="gender">
-
-        <option
-value="">اختر الجنس</option>
-
-        <option>ذكر</option>
-
-        <option>أنثى</option>
-
-      </select>
-
-    </div>
-
-    <div>
-
-      <label>عدد الاتصالات</label>
-
-      <input
-type="number" id="callsCount" min="0"
-value="0">
-
-    </div>
-
-    <div>
-
-      <label>موعد اختبار تحديد المستوى</label>
-
-      <input
-type="datetime-local" id="placementDate"
-onchange="syncChecksFromStage()">
-
-    </div>
-
-    <div>
-
-      <label>الحالة</label>
-
-<select id="stage"
-onchange="syncChecksFromStage()">
-
-  <option>جديد</option>
-
-  <option>عميل سابق</option>
-
-  <option>لم يتم الرد</option>
-
-  <option>تم التواصل</option>
-
-  <option>تم تحديد موعد</option>
-
-  <option>حضر الاختبار</option>
-
-  <option>غير مهتم</option>
-
+    <div>
+      <label>الحالة</label>
+<select id="stage" onchange="syncChecksFromStage()">
+  <option>جديد</option>
+  <option>عميل سابق</option>
+  <option>لم يتم الرد</option>
+  <option>تم التواصل</option>
+  <option>تم تحديد موعد</option>
+  <option>حضر الاختبار</option>
+  <option>غير مهتم</option>
 </select>
-
-    </div>
-
+    </div>
 <div>
-
-  <label>حالة الدفع</label>
-
-  <select
-id="paymentStatus">
-
-    <option
-value="">اختر حالة الدفع</option>
-
-    <option>تم الدفع</option>
-
-    <option>لم يتم الدفع</option>
-
-  </select>
-
+  <label>حالة الدفع</label>
+  <select id="paymentStatus">
+    <option value="">اختر حالة الدفع</option>
+    <option>تم الدفع</option>
+    <option>لم يتم الدفع</option>
+  </select>
+</div>
+<div class="check-row" style="display:none">
+  <input type="checkbox" id="contacted">
+  <label>تم التواصل</label>
 </div>
 
-<div class="check-row">
-
-  <input
-type="checkbox" id="contacted">
-
-  <label>تم التواصل</label>
-
+<div class="check-row" style="display:none">
+  <input type="checkbox" id="attendedPlacement">
+  <label>حضر الاختبار</label>
 </div>
 
-<div class="check-row"
-style="display:none">
+    <div class="check-row">
+      <input type="checkbox" id="interested">
+      <label>مهتم</label>
+    </div>
 
-  <input
-type="checkbox" id="attendedPlacement">
+    <div class="check-row">
+      <input type="checkbox" id="registered">
+      <label>تم التسجيل</label>
+    </div>
 
-  <label>حضر الاختبار</label>
+  </div>
 
-</div>
-
-    <div
-class="check-row">
-
-      <input
-type="checkbox" id="interested">
-
-      <label>مهتم</label>
-
-    </div>
-
-    <div
-class="check-row">
-
-      <input
-type="checkbox" id="registered">
-
-      <label>تم التسجيل</label>
-
-    </div>
-
-  </div>
-
-  <div
-style="margin-top:14px">
-
-    <label>ملاحظات</label>
-
-    <textarea
-id="notes"></textarea>
-
-  </div>
+  <div style="margin-top:14px">
+    <label>ملاحظات</label>
+    <textarea id="notes"></textarea>
+  </div>
 
 <div class="actions">
-
-  <button
-onclick="saveLead()">حفظ العميل</button>
-
-  <button
-class="gray" onclick="clearForm()">تفريغ</button>
+  <button onclick="saveLead()">حفظ العميل</button>
+  <button class="gray" onclick="clearForm()">تفريغ</button>
 
 <button class="green" onclick="exportLeadsCSV()">تصدير العملاء</button>
 
-<button class="green"
-onclick="exportExecutivePDF()">
-
-  تقرير
-إداري PDF
-
+<button class="green" onclick="exportExecutivePDF()">
+  تقرير إداري PDF
 </button>
 
-<label
-style="cursor:pointer;background:#7c3aed">
-
-  استيراد
-العملاء
-
-    <input
-type="file" accept=".csv"
-onchange="importLeadsCSV(event)" style="display:none">
-
-  </label>
-
+<label style="cursor:pointer;background:#7c3aed">
+  استيراد العملاء
+    <input type="file" accept=".csv" onchange="importLeadsCSV(event)" style="display:none">
+  </label>
 </div>
-
 </div>
 
 <div class="card">
-
-  <h2>إدارة الفروع</h2>
-
-  <div
-style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-
-    <div style="flex:1;min-width:240px">
-
-      <label>اسم الفرع الجديد</label>
-
-      <input
-type="text" id="newBranchName" placeholder="مثال: فرع الروضة"
-onkeydown="if(event.key==='Enter'){event.preventDefault();addBranch();}">
-
-    </div>
-
-    <button
-type="button" class="green" onclick="addBranch()"
-style="min-height:46px">إضافة فرع جديد</button>
-
-  </div>
-
-  <div
-style="margin-top:10px;color:#64748b;font-size:13px">بعد الإضافة سيظهر الفرع تلقائيًا في نموذج
-العميل وفلتر الفروع.</div>
-
+  <h2>إدارة الفروع</h2>
+  <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <div style="flex:1;min-width:240px">
+      <label>اسم الفرع الجديد</label>
+      <input type="text" id="newBranchName" placeholder="مثال: فرع الروضة" onkeydown="if(event.key==='Enter'){event.preventDefault();addBranch();}">
+    </div>
+    <button type="button" class="green" onclick="addBranch()" style="min-height:46px">إضافة فرع جديد</button>
+  </div>
+  <div style="margin-top:10px;color:#64748b;font-size:13px">بعد الإضافة سيظهر الفرع تلقائيًا في نموذج العميل وفلتر الفروع.</div>
 </div>
 
 <div class="card">
+  <h2>لوحة الإدارة</h2>
 
-  <h2>لوحة الإدارة</h2>
-
-  <div
-class="kpis">
-
-    <div
-class="kpi">إجمالي العملاء <b
-id="kTotal">0</b></div>
-
-    <div
-class="kpi">عدد الاتصالات <b
-id="kCalls">0</b></div>
-
-    <div
-class="kpi">حضور الاختبار <b
-id="kAttend">0</b></div>
-
-    <div
-class="kpi">المسجلين <b id="kReg">0</b></div>
-
-    <div
-class="kpi">نسبة التسجيل <b
-id="kRate">0%</b></div>
-
-  </div>
-
+  <div class="kpis">
+    <div class="kpi">إجمالي العملاء <b id="kTotal">0</b></div>
+    <div class="kpi">عدد الاتصالات <b id="kCalls">0</b></div>
+    <div class="kpi">حضور الاختبار <b id="kAttend">0</b></div>
+    <div class="kpi">المسجلين <b id="kReg">0</b></div>
+    <div class="kpi">نسبة التسجيل <b id="kRate">0%</b></div>
+  </div>
 </div>
-
 <div class="card">
 
-  <h2>إحصائيات الدفع</h2>
+  <h2>إحصائيات الدفع</h2>
 
-  <div style="
-
-    max-width:700px;
-
-    margin:auto;
-
-    height:250px;
-
-  ">
-
-  <div
-id="paymentSummary" style="
-
+  <div style="
+    max-width:700px;
+    margin:auto;
+    height:250px;
+  ">
+  <div id="paymentSummary" style="
 display:flex;
-
 gap:12px;
-
 justify-content:center;
-
 margin-bottom:15px;
-
 flex-wrap:wrap;
-
 "></div>
-
-    <canvas
-id="paymentChart"></canvas>
-
-  </div>
+    <canvas id="paymentChart"></canvas>
+  </div>
 
 </div>
-
-<div class="source-cards"
-id="sourceCards"></div>
-
+<div class="source-cards" id="sourceCards"></div>
 <div class="card">
-
-  <h2>تقرير حسب المصدر</h2>
-
-  <table>
-
-    <thead>
-
-      <tr>
-
-        <th>المصدر</th>
-
-        <th>عدد العملاء</th>
-
-        <th>عدد الاتصالات</th>
-
-        <th>حضر الاختبار</th>
-
-       <th>تم التسجيل</th>
-
+  <h2>تقرير حسب المصدر</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>المصدر</th>
+        <th>عدد العملاء</th>
+        <th>عدد الاتصالات</th>
+        <th>حضر الاختبار</th>
+       <th>تم التسجيل</th>
 <th>عدد الدافعين</th>
-
 <th>نسبة الحضور</th>
 
-        <th>نسبة التسجيل من العملاء</th>
-
-        <th>التسجيل من الحضور</th>
-
-      </tr>
-
-    </thead>
-
-    <tbody
-id="sourceReport"></tbody>
-
-  </table>
-
+        <th>نسبة التسجيل من العملاء</th>
+        <th>التسجيل من الحضور</th>
+      </tr>
+    </thead>
+    <tbody id="sourceReport"></tbody>
+  </table>
 </div>
 
 <div class="card">
+  <h2>جدول متابعة العملاء</h2>
+<div class="grid" style="margin-bottom:14px">
 
-  <h2>جدول متابعة العملاء</h2>
+  <div>
+    <label>الفرع</label>
+    <select id="branchFilter" onchange="renderAll()">
+      <option value="الكل">الكل</option>
+    </select>
+  </div>
 
-<div class="grid"
-style="margin-bottom:14px">
+  <div>
+    <label>القسم</label>
+    <select id="departmentFilter" onchange="renderAll()">
+      <option value="الكل">الكل</option>
+      <option>قسم الرجال</option>
+      <option>السيدات</option>
+      <option>أطفال</option>
+      <option>أطفال سيدات</option>
+      <option>أونلاين</option>
+    </select>
+  </div>
 
-  <div>
-
-    <label>الفرع</label>
-
-    <select
-id="branchFilter" onchange="renderAll()">
-
-      <option value="الكل">الكل</option>
-
-    </select>
-
-  </div>
-
-  <div>
-
-    <label>القسم</label>
-
-    <select
-id="departmentFilter" onchange="renderAll()">
-
-      <option value="الكل">الكل</option>
-
-      <option>قسم الرجال</option>
-
-      <option>السيدات</option>
-
-      <option>أطفال</option>
-
-      <option>أطفال سيدات</option>
-
-      <option>أونلاين</option>
-
-    </select>
-
-  </div>
-
-  <div>
-
-    <label>التاريخ</label>
-
-    <select id="dateFilter"
-onchange="renderAll()">
-
-      <option
-value="all">الكل</option>
-
-      <option
-value="today">هذا اليوم</option>
-
-      <option
-value="week">هذا الأسبوع</option>
-
-      <option
-value="month">هذا الشهر</option>
-
-      <option
-value="year">هذه السنة</option>
-
-    </select>
-
-  </div>
+  <div>
+    <label>التاريخ</label>
+    <select id="dateFilter" onchange="renderAll()">
+      <option value="all">الكل</option>
+      <option value="today">هذا اليوم</option>
+      <option value="week">هذا الأسبوع</option>
+      <option value="month">هذا الشهر</option>
+      <option value="year">هذه السنة</option>
+    </select>
+  </div>
 
 </div>
+  <input class="search" id="searchInput" oninput="renderTable()" placeholder="بحث سريع بالاسم أو الجوال أو المصدر...">
 
-  <input
-class="search" id="searchInput"
-oninput="renderTable()" placeholder="بحث
-سريع بالاسم أو الجوال أو المصدر...">
-
-  <table>
-
-    <thead>
-
-      <tr>
-
-        <th>م</th>
-
-        <th>تاريخ الاستلام</th>
-
-        <th>مصدر العميل</th>
-
-        <th>الفرع</th>
-
-        <th>اسم العميل</th>
-
-        <th>رقم الجوال</th>
-
-        <th>الجنس</th>
-
-        <th>الاتصالات</th>
-
-        <th>تم التواصل</th>
-
-        <th>موعد الاختبار</th>
-
-        <th>حضر</th>
-
-        <th>مهتم</th>
-
-        <th>مسجل</th>
-
-        <th>الحالة</th>
-
+  <table>
+    <thead>
+      <tr>
+        <th>م</th>
+        <th>تاريخ الاستلام</th>
+        <th>مصدر العميل</th>
+        <th>الفرع</th>
+        <th>اسم العميل</th>
+        <th>رقم الجوال</th>
+        <th>الجنس</th>
+        <th>الاتصالات</th>
+        <th>تم التواصل</th>
+        <th>موعد الاختبار</th>
+        <th>حضر</th>
+        <th>مهتم</th>
+        <th>مسجل</th>
+        <th>الحالة</th>
 <th>حالة الدفع</th>
-
 <th>ملاحظات</th>
-
-        <th>واتس</th>
-
+        <th>واتس</th>
 <th>إجراء</th>
-
-      </tr>
-
-    </thead>
-
-    <tbody
-id="leadsBody"></tbody>
-
-  </table>
-
+      </tr>
+    </thead>
+    <tbody id="leadsBody"></tbody>
+  </table>
 </div>
 
 </div>
 
 <script>
-
 const firebaseConfig = {
-
- 
-apiKey:"AIzaSyCCFBvZosI8dwShZjxvZzI-SU5igEbcOKk",
-
- 
-authDomain:"prudle-system.firebaseapp.com",
-
- 
-projectId:"prudle-system"
+  apiKey:"AIzaSyCCFBvZosI8dwShZjxvZzI-SU5igEbcOKk",
+  authDomain:"prudle-system.firebaseapp.com",
+  projectId:"prudle-system"
 
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.firestore();
 
 let LEADS = [];
-
 const DEFAULT_BRANCHES = ["الحمدانية","الزهراء","الجموم"];
-
 let BRANCHES = [...DEFAULT_BRANCHES];
-
 let PAYMENT_CHART = null;
-
 let SOURCE_CHARTS = {};
-
 function val(id){
-
-  return
-document.getElementById(id).value.trim();
-
+  return document.getElementById(id).value.trim();
 }
 
 function checked(id){
-
-  return
-document.getElementById(id).checked;
-
+  return document.getElementById(id).checked;
 }
 
 function normalizeBranchName(value){
-
-  return String(value ||
-"").trim().replace(/\s+/g," ");
-
+  return String(value || "").trim().replace(/\s+/g," ");
 }
 
 function escapeOptionValue(value){
-
-  return
-String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-
+  return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 function refreshBranchOptions(){
+  const branchSelect = document.getElementById("branch");
+  const branchFilter = document.getElementById("branchFilter");
+  if(!branchSelect || !branchFilter) return;
 
-  const branchSelect =
-document.getElementById("branch");
+  const selectedBranch = branchSelect.value;
+  const selectedFilter = branchFilter.value || "الكل";
+  const names = [...new Set([
+    ...BRANCHES,
+    ...LEADS.map(row=>normalizeBranchName(row.branch)).filter(Boolean)
+  ])].sort((a,b)=>a.localeCompare(b,"ar"));
 
-  const branchFilter =
-document.getElementById("branchFilter");
+  branchSelect.innerHTML = '<option value="">اختر الفرع</option>' +
+    names.map(name=>`<option value="${escapeOptionValue(name)}">${escapeOptionValue(name)}</option>`).join("");
+  branchFilter.innerHTML = '<option value="الكل">الكل</option>' +
+    names.map(name=>`<option value="${escapeOptionValue(name)}">${escapeOptionValue(name)}</option>`).join("");
 
-  if(!branchSelect ||
-!branchFilter) return;
-
-  const selectedBranch =
-branchSelect.value;
-
-  const selectedFilter =
-branchFilter.value || "الكل";
-
-  const names = [...new
-Set([
-
-    ...BRANCHES,
-
-   
-...LEADS.map(row=>normalizeBranchName(row.branch)).filter(Boolean)
-
- 
-])].sort((a,b)=>a.localeCompare(b,"ar"));
-
-  branchSelect.innerHTML =
-'<option value="">اختر الفرع</option>'
-+
-
-   
-names.map(name=>`<option
-value="${escapeOptionValue(name)}">${escapeOptionValue(name)}</option>`).join("");
-
-  branchFilter.innerHTML =
-'<option value="الكل">الكل</option>'
-+
-
-   
-names.map(name=>`<option
-value="${escapeOptionValue(name)}">${escapeOptionValue(name)}</option>`).join("");
-
- 
-if(names.includes(selectedBranch)) branchSelect.value = selectedBranch;
-
-  if(selectedFilter === "الكل" ||
-names.includes(selectedFilter)) branchFilter.value = selectedFilter;
-
+  if(names.includes(selectedBranch)) branchSelect.value = selectedBranch;
+  if(selectedFilter === "الكل" || names.includes(selectedFilter)) branchFilter.value = selectedFilter;
 }
 
 async function addBranch(){
+  const input = document.getElementById("newBranchName");
+  const name = normalizeBranchName(input?.value);
+  if(!name){
+    alert("اكتب اسم الفرع الجديد");
+    input?.focus();
+    return;
+  }
+  if(BRANCHES.some(branch=>branch.toLocaleLowerCase("ar") === name.toLocaleLowerCase("ar"))){
+    alert("هذا الفرع مضاف مسبقًا");
+    return;
+  }
 
-  const input =
-document.getElementById("newBranchName");
-
-  const name =
-normalizeBranchName(input?.value);
-
-  if(!name){
-
-    alert("اكتب اسم الفرع الجديد");
-
-    input?.focus();
-
-    return;
-
-  }
-
- 
-if(BRANCHES.some(branch=>branch.toLocaleLowerCase("ar") ===
-name.toLocaleLowerCase("ar"))){
-
-    alert("هذا الفرع مضاف مسبقًا");
-
-    return;
-
-  }
-
-  try{
-
-    const duplicate = await
-db.collection("CustomerBranches").where("name","==",name).limit(1).get();
-
-    if(!duplicate.empty){
-
-      alert("هذا الفرع مضاف مسبقًا");
-
-      return;
-
-    }
-
-    await
-db.collection("CustomerBranches").add({
-
-      name,
-
-      createdAt:
-firebase.firestore.FieldValue.serverTimestamp()
-
-    });
-
-    input.value =
-"";
-
-    alert("تمت إضافة الفرع بنجاح");
-
-  }catch(error){
-
-    console.error("Add branch
-error:",error);
-
-    alert("تعذرت إضافة الفرع. تحقق من الاتصال وصلاحيات قاعدة البيانات");
-
-  }
-
+  try{
+    const duplicate = await db.collection("CustomerBranches").where("name","==",name).limit(1).get();
+    if(!duplicate.empty){
+      alert("هذا الفرع مضاف مسبقًا");
+      return;
+    }
+    await db.collection("CustomerBranches").add({
+      name,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = "";
+    alert("تمت إضافة الفرع بنجاح");
+  }catch(error){
+    console.error("Add branch error:",error);
+    alert("تعذرت إضافة الفرع. تحقق من الاتصال وصلاحيات قاعدة البيانات");
+  }
 }
-
 function syncChecksFromStage(){
 
-  const stageInput =
-document.getElementById("stage");
+  const stageInput = document.getElementById("stage");
+  const placementDate = val("placementDate");
 
-  const placementDate =
-val("placementDate");
+  if(placementDate){
 
-  if(placementDate){
+    stageInput.value = "تم تحديد موعد";
+    stageInput.disabled = true;
 
-    stageInput.value =
-"تم تحديد موعد";
+  }else{
 
-    stageInput.disabled =
-true;
+    stageInput.disabled = false;
 
-  }else{
+  }
 
-    stageInput.disabled =
-false;
+  const stage = stageInput.value;
 
-  }
+  document.getElementById("contacted").checked =
+    stage === "تم التواصل" ||
+    stage === "تم تحديد موعد" ||
+    stage === "حضر الاختبار";
 
-  const stage =
-stageInput.value;
-
-  // تم التواصل أصبح Checkbox يدوي مستقل، ولا يتم تغييره تلقائيًا من الحالة
-
- 
-document.getElementById("attendedPlacement").checked =
-
-    stage === "حضر الاختبار";
-
+  document.getElementById("attendedPlacement").checked =
+    stage === "حضر الاختبار";
 }
 
 function yesNo(v){
-
-  return v ? "نعم" : "لا";
-
+  return v ? "نعم" : "لا";
 }
-
 function cleanPhone(phone){
+  let p = String(phone || "").replace(/\D/g,"");
 
-  let p = String(phone ||
-"").replace(/\D/g,"");
+  if(p.startsWith("0")){
+    p = "966" + p.substring(1);
+  }
 
- 
-if(p.startsWith("0")){
+  if(!p.startsWith("966")){
+    p = "966" + p;
+  }
 
-    p = "966" +
-p.substring(1);
-
-  }
-
- 
-if(!p.startsWith("966")){
-
-    p = "966" + p;
-
-  }
-
-  return p;
-
+  return p;
 }
 
 function getStageMessage(stage){
-
 if(stage === "عميل سابق"){
-
-  return `السلام عليكم ورحمة الله وبركاته
+  return `السلام عليكم ورحمة الله وبركاته
 
 عزيزي العميل،
 
-هل تم معالجة وحل استفساركم السابق
-بشكل كامل؟
+هل تم معالجة وحل استفساركم السابق بشكل كامل؟
 
-يسعدنا معرفة رأيكم، وفي حال وجود أي
-استفسار إضافي أو احتياج لخدماتنا فنحن في خدمتكم دائمًا.`;
-
+يسعدنا معرفة رأيكم، وفي حال وجود أي استفسار إضافي أو احتياج لخدماتنا فنحن في خدمتكم دائمًا.`;
 }
-
-  if(stage === "لم يتم الرد"){
-
-    return `السلام عليكم ورحمة الله وبركاته
+  if(stage === "لم يتم الرد"){
+    return `السلام عليكم ورحمة الله وبركاته
 
 أهلًا بك في معهد برودل للتدريب
 
-وصلتنا رغبتك بالتسجيل لدينا، وقد
-حاولنا التواصل معك بهذا الخصوص 
+وصلتنا رغبتك بالتسجيل لدينا، وقد حاولنا التواصل معك بهذا الخصوص 
 
-متى يكون الوقت المناسب للتواصل معك
-مرة أخرى؟`;
+متى يكون الوقت المناسب للتواصل معك مرة أخرى؟`;
+  }
 
-  }
+  if(stage === "تم التواصل"){
+    return ` مساء الخير
 
-  if(stage === "تم التواصل"){
+حابين نتأكد هل تم الرد على جميع استفساراتكم؟ وفي حال وجود أي استفسار إضافي يسعدنا خدمتكم. 
 
-    return ` مساء الخير
+ كما نود تذكيركم أن عروض الصيف والخصومات الحالية متاحة لفترة محدودة. 
 
-حابين نتأكد هل تم الرد على جميع
-استفساراتكم؟ وفي حال وجود أي استفسار إضافي يسعدنا خدمتكم. 
+يسعدنا استقبالكم والإجابة على جميع استفساراتكم، ونتطلع لانضمامكم إلى معهد برودل. `;
+  }
 
- كما نود تذكيركم أن عروض الصيف والخصومات
-الحالية متاحة لفترة محدودة. 
-
-يسعدنا استقبالكم والإجابة على جميع
-استفساراتكم، ونتطلع لانضمامكم إلى معهد برودل. `;
-
-  }
-
-  if(stage === "تم تحديد موعد"){
-
-    return ` السلام عليكم
-
-نود تذكيركم بموعدكم اليوم لعمل اختبار
-تحديد المستوى
-
-الساعة 4:00 مساءً.
-
-
+  if(stage === "تم تحديد موعد"){
+    return ` السلام عليكم
+نود تذكيركم بموعدكم اليوم لعمل اختبار تحديد المستوى
+الساعة 4:00 مساءً. 
 https://maps.app.goo.gl/xLkKic95LyozZwzJ9?g_st=iw
 
-يسعدنا استقبالكم، وفي حال وجود أي
-استفسار أو رغبتكم بتعديل الموعد يرجى التواصل معنا`;
+يسعدنا استقبالكم، وفي حال وجود أي استفسار أو رغبتكم بتعديل الموعد يرجى التواصل معنا`;
+  }
 
-  }
+  if(stage === "حضر الاختبار"){
+    return `مرحبا عزيزي
 
-  if(stage === "حضر الاختبار"){
+تم التواصل معكم لغرض معرفة مدى رضاكم وتجربتكم لاختبار تحديد المستوى المجرى من قبلكم .. وهل لديكم أي استفسار عن العروض أو رغبتكم بالانضمام معنا؟`;
+  }
 
-    return `مرحبا عزيزي
-
-تم التواصل معكم لغرض معرفة مدى رضاكم
-وتجربتكم لاختبار تحديد المستوى المجرى من قبلكم .. وهل لديكم أي استفسار عن
-العروض أو رغبتكم بالانضمام معنا؟`;
-
-  }
-
-  return `السلام عليكم ورحمة الله وبركاته
+  return `السلام عليكم ورحمة الله وبركاته
 
 أهلًا بك في معهد برودل للتدريب
 
-يسعدنا تواصلكم مع معهد برودل، كيف
-يمكننا خدمتكم؟`;
-
+يسعدنا تواصلكم مع معهد برودل، كيف يمكننا خدمتكم؟`;
 }
 
 function getExtraMessage(type){
 
-  if(type ===
-"general"){
-
-    return `
+  if(type === "general"){
+    return `
 
 نقدم دورات اللغة الإنجليزية العامة 
-
 للكبار عمر ١١ سنة وفوق
 
- ١٢ مستوى، كل مستوى مدته ٤ أسابيع
+ ١٢ مستوى، كل مستوى مدته ٤ أسابيع
+الدراسة من الأحد إلى الأربعاء، ساعتين يومياً.
+ يحصل الطالب على شهادة معتمدة بعد كل مستوى.
+ جميع المدربين أجانب لغتهم الأم هي اللغة الإنجليزية.`;
+  }
 
-الدراسة من الأحد إلى الأربعاء، ساعتين
-يومياً.
-
- يحصل الطالب على شهادة معتمدة بعد كل مستوى.
-
- جميع المدربين أجانب لغتهم الأم هي اللغة
-الإنجليزية.`;
-
-  }
-
-  if(type ===
-"kids"){
-
-    return `
+  if(type === "kids"){
+    return `
 
 نقدم دورات اللغة الإنجليزية للأطفال 
-
 للأطفال عمر ٦ إلى ١٠ سنوات
 
- ١٠ مستويات، كل مستوى مدته ٤ أسابيع
+ ١٠ مستويات، كل مستوى مدته ٤ أسابيع
+الدراسة من الأحد إلى الأربعاء، ساعة ونصف يومياً.
+ يحصل الطالب على شهادة معتمدة بعد كل مستوى.
+ جميع المدربين أجانب لغتهم الأم هي اللغة الإنجليزية.`;
+  }
 
-الدراسة من الأحد إلى الأربعاء، ساعة
-ونصف يومياً.
+  if(type === "intensive"){
+    return `
 
- يحصل الطالب على شهادة معتمدة بعد كل مستوى.
+ البرنامج الصباحي المكثف للكبار والأطفال
 
- جميع المدربين أجانب لغتهم الأم هي اللغة
-الإنجليزية.`;
+ مدة البرنامج: 6 أسابيع
+ إجمالي الساعات التدريبية: 72 ساعة
+ من الأحد إلى الأربعاء
+ 10:00 صباحًا – 1:00 ظهرًا`;
+  }
 
-  }
-
-  if(type ===
-"intensive"){
-
-    return `
-
- البرنامج الصباحي المكثف للكبار والأطفال
-
- مدة البرنامج: 6 أسابيع
-
- إجمالي الساعات التدريبية: 72 ساعة
-
- من الأحد إلى الأربعاء
-
- 10:00 صباحًا – 1:00 ظهرًا`;
-
-  }
-
-  return "";
-
+  return "";
 }
 
 function openWhatsapp(id){
 
-  const r = LEADS.find(x
-=> x.id === id);
+  const r = LEADS.find(x => x.id === id);
+  if(!r){
+    alert("لم يتم العثور على العميل");
+    return;
+  }
 
-  if(!r){
+  const extraType = document.getElementById("waExtra_" + id)?.value || "";
 
-    alert("لم يتم العثور على العميل");
+  const phone = cleanPhone(r.phone);
 
-    return;
+  if(!phone || phone.length < 12){
+    alert("رقم الجوال غير صحيح");
+    return;
+  }
 
-  }
+  const message =
+    getStageMessage(r.stage || "") +
+    getExtraMessage(extraType);
 
-  const extraType =
-document.getElementById("waExtra_" + id)?.value || "";
+  const url =
+    "https://wa.me/" +
+    phone +
+    "?text=" +
+    encodeURIComponent(message);
 
-  const phone =
-cleanPhone(r.phone);
-
-  if(!phone ||
-phone.length < 12){
-
-    alert("رقم الجوال غير صحيح");
-
-    return;
-
-  }
-
-  const message =
-
-    getStageMessage(r.stage ||
-"") +
-
-    getExtraMessage(extraType);
-
-  const url =
-
-    "https://wa.me/" +
-
-    phone +
-
-    "?text=" +
-
-    encodeURIComponent(message);
-
-  window.open(url,
-"_blank");
-
+  window.open(url, "_blank");
 }
-
 function badge(v){
-
-  return v
-
-    ? `<span class="badge
-yes">نعم</span>`
-
-    : `<span
-class="badge no">لا</span>`;
-
+  return v
+    ? `<span class="badge yes">نعم</span>`
+    : `<span class="badge no">لا</span>`;
 }
 
 async function saveLead(){
+  syncChecksFromStage();
+  const id = val("editId");
 
-  syncChecksFromStage();
-
-  const id =
-val("editId");
-
-  const data = {
-
-    receiveDate:
-val("receiveDate"),
-
-    source:
-val("source"),
-
-    branch:
-val("branch"),
-
-    department:
-val("department"),
-
-    customerName:
-val("customerName"),
-
+  const data = {
+    receiveDate: val("receiveDate"),
+    source: val("source"),
+    branch: val("branch"),
+    department: val("department"),
+    customerName: val("customerName"),
 email: val("email"),
-
 phone: val("phone"),
-
-    gender:
-val("gender"),
-
-    callsCount:
-Number(val("callsCount") || 0),
-
-    contacted:
-checked("contacted"),
-
-    placementDate:
-val("placementDate"),
-
-    attendedPlacement:
-checked("attendedPlacement"),
-
-    interested:
-checked("interested"),
-
-    registered:
-checked("registered"),
-
-  stage: val("stage"),
-
+    gender: val("gender"),
+    callsCount: Number(val("callsCount") || 0),
+    contacted: checked("contacted"),
+    placementDate: val("placementDate"),
+    attendedPlacement: checked("attendedPlacement"),
+    interested: checked("interested"),
+    registered: checked("registered"),
+  stage: val("stage"),
 paymentStatus: val("paymentStatus"),
-
 notes: val("notes"),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
 
-    updatedAt:
-firebase.firestore.FieldValue.serverTimestamp()
+  if(!data.customerName){
+    alert("اكتب اسم العميل");
+    return;
+  }
 
-  };
+  if(!data.phone){
+    alert("اكتب رقم الجوال");
+    return;
+  }
 
-  if(!data.customerName){
+  if(id){
+    await db.collection("CustomerLeads").doc(id).set(data,{merge:true});
+    alert("تم تعديل العميل");
+  }else{
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection("CustomerLeads").add(data);
+    alert("تم حفظ العميل");
+  }
 
-    alert("اكتب اسم العميل");
-
-    return;
-
-  }
-
-  if(!data.phone){
-
-    alert("اكتب رقم الجوال");
-
-    return;
-
-  }
-
-  if(id){
-
-    await db.collection("CustomerLeads").doc(id).set(data,{merge:true});
-
-    alert("تم تعديل العميل");
-
-  }else{
-
-    data.createdAt =
-firebase.firestore.FieldValue.serverTimestamp();
-
-    await
-db.collection("CustomerLeads").add(data);
-
-    alert("تم حفظ العميل");
-
-  }
-
-  clearForm();
-
+  clearForm();
 }
 
 function clearForm(){
-
- 
-document.getElementById("editId").value = "";
-
- 
-document.getElementById("receiveDate").value = "";
-
- 
-document.getElementById("source").value = "";
-
- 
-document.getElementById("branch").value = "";
-
- 
-document.getElementById("department").value = "";
-
- document.getElementById("customerName").value
-= "";
-
+  document.getElementById("editId").value = "";
+  document.getElementById("receiveDate").value = "";
+  document.getElementById("source").value = "";
+  document.getElementById("branch").value = "";
+  document.getElementById("department").value = "";
+ document.getElementById("customerName").value = "";
 document.getElementById("email").value = "";
-
 document.getElementById("phone").value = "";
-
-  document.getElementById("gender").value
-= "";
-
- 
-document.getElementById("callsCount").value = 0;
-
- 
-document.getElementById("placementDate").value = "";
-
- 
-document.getElementById("stage").value = "جديد";
-
- 
-document.getElementById("paymentStatus").value = "";
-
- 
-document.getElementById("notes").value = "";
+  document.getElementById("gender").value = "";
+  document.getElementById("callsCount").value = 0;
+  document.getElementById("placementDate").value = "";
+  document.getElementById("stage").value = "جديد";
+  document.getElementById("paymentStatus").value = "";
+  document.getElementById("notes").value = "";
 
 ["contacted","attendedPlacement","interested","registered"].forEach(id=>{
-
- 
-document.getElementById(id).checked = false;
-
+  document.getElementById(id).checked = false;
 });
 
 document.getElementById("stage").disabled = false;
 
 syncChecksFromStage();
-
 }
 
 function editLead(id){
 
-  const r = LEADS.find(x
-=> x.id === id);
+  const r = LEADS.find(x => x.id === id);
+  if(!r) return;
 
-  if(!r) return;
-
- 
-document.getElementById("editId").value = r.id;
-
- 
-document.getElementById("receiveDate").value = r.receiveDate
-|| "";
-
- 
-document.getElementById("source").value = r.source ||
-"";
-
-  if(r.branch &&
-!BRANCHES.includes(r.branch)){
-
-    BRANCHES.push(r.branch);
-
-    refreshBranchOptions();
-
-  }
-
-  document.getElementById("branch").value
-= r.branch || "";
-
- 
-document.getElementById("department").value = r.department ||
-"";
-
- 
-document.getElementById("customerName").value = r.customerName
-|| "";
-
-document.getElementById("email").value = r.email ||
-"";
-
-document.getElementById("phone").value = r.phone ||
-"";
-
- 
-document.getElementById("gender").value = r.gender ||
-"";
-
- 
-document.getElementById("callsCount").value = r.callsCount ||
-0;
-
- 
-document.getElementById("placementDate").value =
-r.placementDate || "";
-
-  document.getElementById("stage").value
-= r.stage || "جديد";
-
+  document.getElementById("editId").value = r.id;
+  document.getElementById("receiveDate").value = r.receiveDate || "";
+  document.getElementById("source").value = r.source || "";
+  if(r.branch && !BRANCHES.includes(r.branch)){
+    BRANCHES.push(r.branch);
+    refreshBranchOptions();
+  }
+  document.getElementById("branch").value = r.branch || "";
+  document.getElementById("department").value = r.department || "";
+  document.getElementById("customerName").value = r.customerName || "";
+document.getElementById("email").value = r.email || "";
+document.getElementById("phone").value = r.phone || "";
+  document.getElementById("gender").value = r.gender || "";
+  document.getElementById("callsCount").value = r.callsCount || 0;
+  document.getElementById("placementDate").value = r.placementDate || "";
+  document.getElementById("stage").value = r.stage || "جديد";
 syncChecksFromStage();
+  document.getElementById("paymentStatus").value = r.paymentStatus || "";
+  document.getElementById("notes").value = r.notes || "";
+  document.getElementById("interested").checked = !!r.interested;
+  document.getElementById("registered").checked = !!r.registered;
 
-// استرجاع حالة Checkbox تم التواصل المحفوظة يدويًا
-document.getElementById("contacted").checked = !!r.contacted;
-
- 
-document.getElementById("paymentStatus").value =
-r.paymentStatus || "";
-
- 
-document.getElementById("notes").value = r.notes ||
-"";
-
- 
-document.getElementById("interested").checked = !!r.interested;
-
- 
-document.getElementById("registered").checked =
-!!r.registered;
-
- 
-window.scrollTo({top:0,behavior:"smooth"});
-
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 async function deleteLead(id){
-
-  if(!confirm("حذف العميل؟")) return;
-
-  await
-db.collection("CustomerLeads").doc(id).delete();
-
+  if(!confirm("حذف العميل؟")) return;
+  await db.collection("CustomerLeads").doc(id).delete();
 }
-
 function getFilteredLeads(){
 
-  const branch =
-document.getElementById("branchFilter")?.value || "الكل";
+  const branch = document.getElementById("branchFilter")?.value || "الكل";
+  const dep = document.getElementById("departmentFilter")?.value || "الكل";
+  const dateFilter = document.getElementById("dateFilter")?.value || "all";
 
-  const dep =
-document.getElementById("departmentFilter")?.value || "الكل";
+  return LEADS.filter(r=>{
 
-  const dateFilter =
-document.getElementById("dateFilter")?.value || "all";
+    if(branch !== "الكل" && r.branch !== branch){
+      return false;
+    }
 
-  return
-LEADS.filter(r=>{
+    if(dep !== "الكل" && r.department !== dep){
+      return false;
+    }
 
-    if(branch !== "الكل" &&
-r.branch !== branch){
+    if(dateFilter === "all"){
+      return true;
+    }
 
-      return false;
+    if(!r.receiveDate){
+      return false;
+    }
 
-    }
+    const rawDate = String(r.receiveDate || "").trim();
+    const d = rawDate.includes("T")
+      ? new Date(rawDate)
+      : new Date(rawDate + "T00:00:00");
+    const now = new Date();
 
-    if(dep !== "الكل" &&
-r.department !== dep){
+    if(dateFilter === "today"){
+      return d.toDateString() === now.toDateString();
+    }
 
-      return false;
+    if(dateFilter === "week"){
+      const start = new Date(now);
+      start.setDate(now.getDate() - now.getDay());
+      start.setHours(0,0,0,0);
 
-    }
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
 
-    if(dateFilter ===
-"all"){
+      return d >= start && d < end;
+    }
 
-      return true;
+    if(dateFilter === "month"){
+      return d.getFullYear() === now.getFullYear()
+        && d.getMonth() === now.getMonth();
+    }
 
-    }
+    if(dateFilter === "year"){
+      return d.getFullYear() === now.getFullYear();
+    }
 
-    if(!r.receiveDate){
+    return true;
 
-      return false;
-
-    }
-
-    const rawDate =
-String(r.receiveDate || "").trim();
-
-    const d =
-rawDate.includes("T")
-
-      ? new Date(rawDate)
-
-      : new Date(rawDate +
-"T00:00:00");
-
-    const now = new Date();
-
-    if(dateFilter ===
-"today"){
-
-      return d.toDateString() ===
-now.toDateString();
-
-    }
-
-    if(dateFilter ===
-"week"){
-
-      const start = new Date(now);
-
-      start.setDate(now.getDate()
-- now.getDay());
-
-      start.setHours(0,0,0,0);
-
-      const end = new
-Date(start);
-
-      end.setDate(start.getDate()
-+ 7);
-
-      return d >= start
-&& d < end;
-
-    }
-
-    if(dateFilter ===
-"month"){
-
-      return d.getFullYear() ===
-now.getFullYear()
-
-        && d.getMonth()
-=== now.getMonth();
-
-    }
-
-    if(dateFilter ===
-"year"){
-
-      return d.getFullYear() ===
-now.getFullYear();
-
-    }
-
-    return true;
-
-  });
+  });
 
 }
 
 function renderAll(){
-
-  renderDashboard();
-
-  renderTable();
-
+  renderDashboard();
+  renderTable();
 }
-
 function isPlacementToday(dateValue){
+  if(!dateValue) return false;
 
-  if(!dateValue) return false;
+  const d = new Date(dateValue);
+  if(isNaN(d.getTime())) return false;
 
-  const d = new
-Date(dateValue);
+  const today = new Date();
 
-  if(isNaN(d.getTime())) return
-false;
-
-  const today = new
-Date();
-
-  return d.getFullYear()
-=== today.getFullYear() &&
-
-         d.getMonth() ===
-today.getMonth() &&
-
-         d.getDate() ===
-today.getDate();
-
+  return d.getFullYear() === today.getFullYear() &&
+         d.getMonth() === today.getMonth() &&
+         d.getDate() === today.getDate();
 }
-
 function renderTable(){
 
-  const q =
-val("searchInput").toLowerCase();
+  const q = val("searchInput").toLowerCase();
 
-  const filtered =
-getFilteredLeads().filter(r=>{
-
-    const text = `
-
-   ${r.customerName||""}
-
+  const filtered = getFilteredLeads().filter(r=>{
+    const text = `
+   ${r.customerName||""}
 ${r.email||""}
-
 ${r.phone||""}
-
 ${r.source||""}
-
 ${r.branch||""}
-
 ${r.stage||""}
+    `.toLowerCase();
 
-    `.toLowerCase();
+    return text.includes(q);
+  });
 
-    return
-text.includes(q);
+  let html = "";
 
-  });
-
-  let html = "";
-
- 
-filtered.forEach((r,i)=>{
-
- const appointmentToday =
-
-  r.stage === "تم تحديد موعد" &&
-
-  !r.attendedPlacement
-&&
-
-  isPlacementToday(r.placementDate);
-
-    html += `
-
-      <tr>
-
-       
-<td>${i+1}</td>
-
-        <td>
-
+  filtered.forEach((r,i)=>{
+ const appointmentToday =
+  r.stage === "تم تحديد موعد" &&
+  !r.attendedPlacement &&
+  isPlacementToday(r.placementDate);
+    html += `
+      <tr>
+        <td>${i+1}</td>
+        <td>
 ${
-
-  r.receiveDate
-
-  ? new
-Date(r.receiveDate).toLocaleString("en-GB")
-
-  : ""
-
+  r.receiveDate
+  ? new Date(r.receiveDate).toLocaleString("en-GB")
+  : ""
 }
-
 </td>
-
-        <td>${r.source ||
-""}</td>
-
-        <td>${r.branch ||
-""}</td>
-
-        <td>
-
-  <div
-style="font-weight:900;color:#164478">
-
-    ${r.customerName ||
-""}
-
-  </div>
-
-  ${
-
-    r.email
-
-    ? `<div
-style="font-size:12px;color:#6b7280;margin-top:4px;direction:ltr">
-
-        ${r.email}
-
-      </div>`
-
-    : ""
-
-  }
-
+        <td>${r.source || ""}</td>
+        <td>${r.branch || ""}</td>
+        <td>
+  <div style="font-weight:900;color:#164478">
+    ${r.customerName || ""}
+  </div>
+  ${
+    r.email
+    ? `<div style="font-size:12px;color:#6b7280;margin-top:4px;direction:ltr">
+        ${r.email}
+      </div>`
+    : ""
+  }
 </td>
-
-        <td>${r.phone ||
-""}</td>
-
-        <td>${r.gender ||
-""}</td>
-
-        <td>${r.callsCount
-|| 0}</td>
-
-       
-<td>${badge(r.contacted)}</td>
-
-       
-<td>${r.placementDate || ""}</td>
-
-       
-<td>${badge(r.attendedPlacement)}</td>
-
-       
-<td>${badge(r.interested)}</td>
-
-       
-<td>${badge(r.registered)}</td>
-
+        <td>${r.phone || ""}</td>
+        <td>${r.gender || ""}</td>
+        <td>${r.callsCount || 0}</td>
+        <td>${badge(r.contacted)}</td>
+        <td>${r.placementDate || ""}</td>
+        <td>${badge(r.attendedPlacement)}</td>
+        <td>${badge(r.interested)}</td>
+        <td>${badge(r.registered)}</td>
 <td>
-
-  ${
-
-    appointmentToday
-
-    ? `<span
-class="appointment-alert">موعد
-اختبار اليوم</span>`
-
-    : r.stage === "تم تحديد موعد"
-
-      ? `<span
-class="stage-green">تم تحديد موعد</span>`
-
-      : `<span
-class="stage-normal">${r.stage || ""}</span>`
-
-  }
-
+  ${
+    appointmentToday
+    ? `<span class="appointment-alert">موعد اختبار اليوم</span>`
+    : r.stage === "تم تحديد موعد"
+      ? `<span class="stage-green">تم تحديد موعد</span>`
+      : `<span class="stage-normal">${r.stage || ""}</span>`
+  }
 </td>
-
 <td>${r.paymentStatus || ""}</td>
-
 <td>${r.notes || ""}</td>
 
 <td>
+  <div class="whatsapp-box">
+    <select class="whatsapp-select" id="waExtra_${r.id}">
+      <option value="">رسالة الحالة فقط</option>
+      <option value="general">دورات الكبار</option>
+      <option value="kids">دورات الأطفال</option>
+      <option value="intensive">الصباحي المكثف</option>
+    </select>
 
-  <div
-class="whatsapp-box">
-
-    <select
-class="whatsapp-select" id="waExtra_${r.id}">
-
-      <option
-value="">رسالة الحالة فقط</option>
-
-      <option
-value="general">دورات الكبار</option>
-
-      <option
-value="kids">دورات الأطفال</option>
-
-      <option
-value="intensive">الصباحي المكثف</option>
-
-    </select>
-
-    <button
-class="whatsapp" onclick="openWhatsapp('${r.id}')">
-
-      واتس
-
-    </button>
-
-  </div>
-
+    <button class="whatsapp" onclick="openWhatsapp('${r.id}')">
+      واتس
+    </button>
+  </div>
 </td>
 
 <td>
-
-  <button
-class="green" onclick="editLead('${r.id}')">تعديل</button>
-
-  <button
-class="red" onclick="deleteLead('${r.id}')">حذف</button>
-
+  <button class="green" onclick="editLead('${r.id}')">تعديل</button>
+  <button class="red" onclick="deleteLead('${r.id}')">حذف</button>
 </td>
+      </tr>
+    `;
+  });
 
-      </tr>
-
-    `;
-
-  });
-
- 
-document.getElementById("leadsBody").innerHTML =
-
-   html || `<tr><td
-colspan="18">لا توجد بيانات</td></tr>`;
-
+  document.getElementById("leadsBody").innerHTML =
+   html || `<tr><td colspan="18">لا توجد بيانات</td></tr>`;
 }
-
 function renderSourceCards(){
 
-  const sources = [
+  const sources = [
+    {name:"سناب شات", icon:"□"},
+    {name:"تيك توك", icon:"□"},
+    {name:"موقع المعهد", icon:"□"},
+    {name:"اختبار تحديد المستوى", icon:"□"}
+  ];
 
-    {name:"سناب شات", icon:"□"},
-
-    {name:"تيك توك",
-icon:"□"},
-
-    {name:"موقع المعهد",
-icon:"□"},
-
-    {name:"اختبار تحديد المستوى",
-icon:"□"}
-
-  ];
-
-  let html = "";
-
+  let html = "";
 const sourceStats = sources.map(src=>{
 
-  const rows =
-getFilteredLeads().filter(r => (r.source || "") === src.name);
+  const rows = getFilteredLeads().filter(r => (r.source || "") === src.name);
 
 const customers = rows.length;
-
 const attend = rows.filter(r=>r.attendedPlacement).length;
-
 const reg = rows.filter(r=>r.registered).length;
-
 const paid = rows.filter(r => r.paymentStatus === "تم الدفع").length;
 
-  return {
-
-    name: src.name,
-
-    customers,
-
-    attend,
-
-    reg
-
-  };
+  return {
+    name: src.name,
+    customers,
+    attend,
+    reg
+  };
 
 });
 
 const maxChartValue = Math.max(
-
-  1,
-
-  ...sourceStats.map(s
-=> s.customers),
-
-  ...sourceStats.map(s =>
-s.reg),
-
-  ...sourceStats.map(s =>
-s.attend)
-
+  1,
+  ...sourceStats.map(s => s.customers),
+  ...sourceStats.map(s => s.reg),
+  ...sourceStats.map(s => s.attend)
 );
+  sources.forEach(src=>{
 
- 
-sources.forEach(src=>{
+    html += `
+      <div class="source-card">
 
-    html += `
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:12px;
+        ">
 
-      <div
-class="source-card">
+          <div style="
+            background:#f8fafc;
+            border:2px solid #dbeafe;
+            border-radius:12px;
+            padding:8px 14px;
+            text-align:center;
+            min-width:90px;
+          ">
+            <div style="
+              font-size:12px;
+              color:#64748b;
+              font-weight:700;
+            ">
+              نسبة التسجيل
+            </div>
 
-        <div
-style="
+            <div id="rate_${src.name}" style="
+              font-size:22px;
+              font-weight:900;
+              color:#16a34a;
+              margin-top:4px;
+            ">
+              0%
+            </div>
+          </div>
 
-          display:flex;
+          <div class="source-title">
+            <span>${src.name}</span>
+            <span>${src.icon}</span>
+          </div>
 
-         
-justify-content:space-between;
+        </div>
 
-          align-items:center;
-
-          margin-bottom:12px;
-
-        ">
-
-          <div
-style="
-
-            background:#f8fafc;
-
-            border:2px solid
-#dbeafe;
-
-            border-radius:12px;
-
-            padding:8px 14px;
-
-            text-align:center;
-
-            min-width:90px;
-
-          ">
-
-            <div
-style="
-
-              font-size:12px;
-
-              color:#64748b;
-
-              font-weight:700;
-
-            ">
-
-              نسبة التسجيل
-
-            </div>
-
-            <div
-id="rate_${src.name}" style="
-
-              font-size:22px;
-
-              font-weight:900;
-
-              color:#16a34a;
-
-              margin-top:4px;
-
-            ">
-
-              0%
-
-            </div>
-
-          </div>
-
-          <div
-class="source-title">
-
-           
-<span>${src.name}</span>
-
-           
-<span>${src.icon}</span>
-
-          </div>
-
-        </div>
-
-     <div
-class="source-mini-stats">
-
-  <div>العملاء<span id="srcCustomers_${src.name}">0</span></div>
-
-  <div>المسجلين<span
-id="srcReg_${src.name}">0</span></div>
-
-  <div>الدافعين<span
-id="srcPaid_${src.name}">0</span></div>
-
-  <div>الحضور<span
-id="srcAttend_${src.name}">0</span></div>
-
+     <div class="source-mini-stats">
+  <div>العملاء<span id="srcCustomers_${src.name}">0</span></div>
+  <div>المسجلين<span id="srcReg_${src.name}">0</span></div>
+  <div>الدافعين<span id="srcPaid_${src.name}">0</span></div>
+  <div>الحضور<span id="srcAttend_${src.name}">0</span></div>
 </div>
 
-        <div
-class="mini-chart-box">
+        <div class="mini-chart-box">
+          <canvas id="chart_${src.name}"></canvas>
+        </div>
 
-          <canvas
-id="chart_${src.name}"></canvas>
+      </div>
+    `;
 
-        </div>
+  });
 
-      </div>
+  document.getElementById("sourceCards").innerHTML = html;
 
-    `;
+  sources.forEach(src=>{
 
-  });
-
- 
-document.getElementById("sourceCards").innerHTML = html;
-
- 
-sources.forEach(src=>{
-
-    const rows =
-getFilteredLeads().filter(
-
-  r => (r.source ||
-"") === src.name
-
+    const rows = getFilteredLeads().filter(
+  r => (r.source || "") === src.name
 );
 
-    const customers =
-rows.length;
-
+    const customers = rows.length;
 const attend = rows.filter(r=>r.attendedPlacement).length;
-
 const reg = rows.filter(r=>r.registered).length;
-
 const paid = rows.filter(r => r.paymentStatus === "تم الدفع").length;
-
 const regRate = customers ? Math.round((reg / customers) * 100) : 0;
 
-   
-document.getElementById(`rate_${src.name}`).innerText = regRate +
-"%";
-
-   
-document.getElementById(`srcCustomers_${src.name}`).innerText =
-customers;
-
-    document.getElementById(`srcAttend_${src.name}`).innerText
-= attend;
-
-   
-document.getElementById(`srcReg_${src.name}`).innerText = reg;
-
+    document.getElementById(`rate_${src.name}`).innerText = regRate + "%";
+    document.getElementById(`srcCustomers_${src.name}`).innerText = customers;
+    document.getElementById(`srcAttend_${src.name}`).innerText = attend;
+    document.getElementById(`srcReg_${src.name}`).innerText = reg;
 document.getElementById(`srcPaid_${src.name}`).innerText = paid;
+    const canvas = document.getElementById(`chart_${src.name}`);
 
-    const canvas =
-document.getElementById(`chart_${src.name}`);
+    if(SOURCE_CHARTS[src.name]){
+      SOURCE_CHARTS[src.name].destroy();
+    }
 
-    if(SOURCE_CHARTS[src.name]){
-
-     
-SOURCE_CHARTS[src.name].destroy();
-
-    }
-
-   
-SOURCE_CHARTS[src.name] = new Chart(canvas, {
-
-      type:"bar",
-
-      data:{
-
-        labels:["الحضور","المسجلين","العملاء"],
-
+    SOURCE_CHARTS[src.name] = new Chart(canvas, {
+      type:"bar",
+      data:{
+        labels:["الحضور","المسجلين","العملاء"],
 datasets:[{
+  data:[attend, reg, customers],
+          backgroundColor:["#2563eb","#16a34a","#7c3aed"],
+          barThickness:35,
+          borderRadius:10,
+          borderWidth:0
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false}
+        },
+        scales:{
+         y:{
+  beginAtZero:true,
+  max:maxChartValue,
+  ticks:{
+              precision:0,
+              font:{size:10}
+            }
+          },
+          x:{
+            ticks:{
+              font:{size:10}
+            }
+          }
+        }
+      }
+    });
 
-  data:[attend, reg, customers],
-
-          backgroundColor:["#2563eb","#16a34a","#7c3aed"],
-
-          barThickness:35,
-
-          borderRadius:10,
-
-          borderWidth:0
-
-        }]
-
-      },
-
-      options:{
-
-        responsive:true,
-
-        maintainAspectRatio:false,
-
-        plugins:{
-
-          legend:{display:false}
-
-        },
-
-        scales:{
-
-         y:{
-
-  beginAtZero:true,
-
-  max:maxChartValue,
-
-  ticks:{
-
-              precision:0,
-
-              font:{size:10}
-
-            }
-
-          },
-
-          x:{
-
-            ticks:{
-
-              font:{size:10}
-
-            }
-
-          }
-
-        }
-
-      }
-
-    });
-
-  });
+  });
 
 }
-
 function renderDashboard(){
 
-  const DATA =
-getFilteredLeads();
+  const DATA = getFilteredLeads();
 
-  const total =
-DATA.length;
+  const total = DATA.length;
+  const calls = DATA.reduce((s,r)=>s + Number(r.callsCount || 0),0);
+  const attend = DATA.filter(r=>r.attendedPlacement).length;
+  const reg = DATA.filter(r=>r.registered).length;
+  const rate = total ? Math.round((reg / total) * 100) : 0;
 
-  const calls =
-DATA.reduce((s,r)=>s + Number(r.callsCount || 0),0);
+  document.getElementById("kTotal").innerText = total;
+  document.getElementById("kCalls").innerText = calls;
+  document.getElementById("kAttend").innerText = attend;
+  document.getElementById("kReg").innerText = reg;
+  document.getElementById("kRate").innerText = rate + "%";
 
-  const attend =
-DATA.filter(r=>r.attendedPlacement).length;
+  const sources = [
+    "سناب شات",
+    "تيك توك",
+    "موقع المعهد",
+    "اختبار تحديد المستوى"
+  ];
 
-  const reg =
-DATA.filter(r=>r.registered).length;
+  let html = "";
 
-  const rate = total ?
-Math.round((reg / total) * 100) : 0;
+  sources.forEach(src=>{
 
-  document.getElementById("kTotal").innerText
-= total;
+    const rows = DATA.filter(r => (r.source || "") === src);
 
- 
-document.getElementById("kCalls").innerText = calls;
-
- 
-document.getElementById("kAttend").innerText = attend;
-
- 
-document.getElementById("kReg").innerText = reg;
-
- 
-document.getElementById("kRate").innerText = rate +
-"%";
-
-  const sources = [
-
-    "سناب شات",
-
-    "تيك توك",
-
-    "موقع المعهد",
-
-    "اختبار تحديد المستوى"
-
-  ];
-
-  let html = "";
-
- 
-sources.forEach(src=>{
-
-    const rows =
-DATA.filter(r => (r.source || "") === src);
-
-    const customers =
-rows.length;
-
-    const sourceCalls =
-rows.reduce((s,r)=>s + Number(r.callsCount || 0),0);
-
-    const sourceAttend =
-rows.filter(r=>r.attendedPlacement).length;
-
-    const sourceReg =
-rows.filter(r=>r.registered).length;
-
+    const customers = rows.length;
+    const sourceCalls = rows.reduce((s,r)=>s + Number(r.callsCount || 0),0);
+    const sourceAttend = rows.filter(r=>r.attendedPlacement).length;
+    const sourceReg = rows.filter(r=>r.registered).length;
 const sourcePaid =
-
 rows.filter(
-
-r => r.paymentStatus === "تم
-الدفع"
-
+r => r.paymentStatus === "تم الدفع"
 ).length;
 
-    const attendRate =
-customers ? Math.round((sourceAttend/customers)*100) : 0;
+    const attendRate = customers ? Math.round((sourceAttend/customers)*100) : 0;
+    const regRate = customers ? Math.round((sourceReg/customers)*100) : 0;
+    const regFromAttend = sourceAttend ? Math.round((sourceReg/sourceAttend)*100) : 0;
 
-    const regRate = customers ?
-Math.round((sourceReg/customers)*100) : 0;
+    html += `
 
-    const regFromAttend =
-sourceAttend ? Math.round((sourceReg/sourceAttend)*100) : 0;
-
-    html += `
-
-  <tr>
-
-    <td>${src}</td>
-
-   
-<td>${customers}</td>
-
-   
-<td>${sourceCalls}</td>
-
-   
-<td>${sourceAttend}</td>
-
-   
-<td>${sourceReg}</td>
-
-   
-<td>${sourcePaid}</td>
-
-   
-<td>${attendRate}%</td>
-
-   
-<td>${regRate}%</td>
-
-   
-<td>${regFromAttend}%</td>
-
-  </tr>
-
+  <tr>
+    <td>${src}</td>
+    <td>${customers}</td>
+    <td>${sourceCalls}</td>
+    <td>${sourceAttend}</td>
+    <td>${sourceReg}</td>
+    <td>${sourcePaid}</td>
+    <td>${attendRate}%</td>
+    <td>${regRate}%</td>
+    <td>${regFromAttend}%</td>
+  </tr>
 `;
 
-  });
-
- 
-document.getElementById("sourceReport").innerHTML = html;
-
-  renderSourceCards();
-
-  const paid =
-DATA.filter(r => r.paymentStatus === "تم
-الدفع").length;
-
-  const unpaid =
-DATA.filter(r => r.paymentStatus === "لم
-يتم الدفع").length;
-
-  const paidRate = total ?
-Math.round((paid / total) * 100) : 0;
-
-  const unpaidRate = total ?
-Math.round((unpaid / total) * 100) : 0;
-
- 
-document.getElementById("paymentSummary").innerHTML = `
-
-    <div style="
-
-      background:#dcfce7;
-
-      padding:12px 20px;
-
-      border-radius:12px;
-
-      font-weight:900;
-
-      color:#166534;
-
-    ">
-
-      تم الدفع: ${paid} (${paidRate}%)
-
-    </div>
-
-    <div style="
-
-      background:#fee2e2;
-
-      padding:12px 20px;
-
-      border-radius:12px;
-
-      font-weight:900;
-
-      color:#991b1b;
-
-    ">
-
-      لم يتم الدفع: ${unpaid} (${unpaidRate}%)
-
-    </div>
-
-  `;
-
-  const ctx =
-document.getElementById("paymentChart");
-
-  if(ctx){
-
-    if(PAYMENT_CHART){
-
-      PAYMENT_CHART.destroy();
-
-    }
-
-    PAYMENT_CHART = new
-Chart(ctx, {
-
-      type:"bar",
-
-      data:{
-
-        labels:["تم الدفع","لم يتم الدفع"],
-
-        datasets:[{
-
-          label:"عدد العملاء",
-
-          data:[paid,
-unpaid],
-
-         
-backgroundColor:["#16a34a","#dc2626"],
-
-          borderRadius:12,
-
-          borderWidth:0
-
-        }]
-
-      },
-
-      options:{
-
-        responsive:true,
-
-        maintainAspectRatio:false,
-
-        plugins:{
-
-          legend:{display:false},
-
-          tooltip:{
-
-            callbacks:{
-
-             
-label:function(context){
-
-                const value =
-context.raw || 0;
-
-                const percent =
-total ? Math.round((value / total) * 100) : 0;
-
-                return `${value} عميل (${percent}%)`;
-
-              }
-
-            }
-
-          }
-
-        },
-
-        scales:{
-
-          y:{
-
-            beginAtZero:true,
-
-            ticks:{precision:0}
-
-          }
-
-        }
-
-      }
-
-    });
-
-  }
+  });
+
+  document.getElementById("sourceReport").innerHTML = html;
+
+  renderSourceCards();
+
+  const paid = DATA.filter(r => r.paymentStatus === "تم الدفع").length;
+  const unpaid = DATA.filter(r => r.paymentStatus === "لم يتم الدفع").length;
+
+  const paidRate = total ? Math.round((paid / total) * 100) : 0;
+  const unpaidRate = total ? Math.round((unpaid / total) * 100) : 0;
+
+  document.getElementById("paymentSummary").innerHTML = `
+    <div style="
+      background:#dcfce7;
+      padding:12px 20px;
+      border-radius:12px;
+      font-weight:900;
+      color:#166534;
+    ">
+      تم الدفع: ${paid} (${paidRate}%)
+    </div>
+
+    <div style="
+      background:#fee2e2;
+      padding:12px 20px;
+      border-radius:12px;
+      font-weight:900;
+      color:#991b1b;
+    ">
+      لم يتم الدفع: ${unpaid} (${unpaidRate}%)
+    </div>
+  `;
+
+  const ctx = document.getElementById("paymentChart");
+
+  if(ctx){
+
+    if(PAYMENT_CHART){
+      PAYMENT_CHART.destroy();
+    }
+
+    PAYMENT_CHART = new Chart(ctx, {
+      type:"bar",
+      data:{
+        labels:["تم الدفع","لم يتم الدفع"],
+        datasets:[{
+          label:"عدد العملاء",
+          data:[paid, unpaid],
+          backgroundColor:["#16a34a","#dc2626"],
+          borderRadius:12,
+          borderWidth:0
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{
+              label:function(context){
+                const value = context.raw || 0;
+                const percent = total ? Math.round((value / total) * 100) : 0;
+                return `${value} عميل (${percent}%)`;
+              }
+            }
+          }
+        },
+        scales:{
+          y:{
+            beginAtZero:true,
+            ticks:{precision:0}
+          }
+        }
+      }
+    });
+
+  }
 
 }
 
 function getReportFilterInfo(){
+  const branchValue =
+    document.getElementById("branchFilter")?.value || "الكل";
+  const departmentValue =
+    document.getElementById("departmentFilter")?.value || "الكل";
 
-  const branchValue =
+  const dateValue =
+    document.getElementById("dateFilter")?.value || "all";
 
-   
-document.getElementById("branchFilter")?.value || "الكل";
+  const dateLabels = {
+    all:"كل التواريخ",
+    today:"هذا اليوم",
+    week:"هذا الأسبوع",
+    month:"هذا الشهر",
+    year:"هذه السنة"
+  };
 
-  const departmentValue =
-
-   
-document.getElementById("departmentFilter")?.value || "الكل";
-
-  const dateValue =
-
-   
-document.getElementById("dateFilter")?.value ||
-"all";
-
-  const dateLabels = {
-
-    all:"كل التواريخ",
-
-    today:"هذا اليوم",
-
-    week:"هذا الأسبوع",
-
-    month:"هذا الشهر",
-
-    year:"هذه السنة"
-
-  };
-
-  return {
-
-    branch: branchValue,
-
-    department: departmentValue,
-
-    dateKey: dateValue,
-
-    dateLabel:
-dateLabels[dateValue] || dateValue,
-
-    description:
-
-      "Branch: " +
-
-      (branchValue === "الكل" ?
-"All" : branchValue) +
-
-      " | Department:
-" +
-
-      (departmentValue === "الكل" ?
-"All" : departmentValue) +
-
-      " | Period:
-" +
-
-      (dateLabels[dateValue] ||
-dateValue)
-
-  };
-
+  return {
+    branch: branchValue,
+    department: departmentValue,
+    dateKey: dateValue,
+    dateLabel: dateLabels[dateValue] || dateValue,
+    description:
+      "Branch: " +
+      (branchValue === "الكل" ? "All" : branchValue) +
+      " | Department: " +
+      (departmentValue === "الكل" ? "All" : departmentValue) +
+      " | Period: " +
+      (dateLabels[dateValue] || dateValue)
+  };
 }
 
 function getDynamicSources(data){
-
-  return [...new Set(
-
-    data
-
-      .map(r => String(r.source
-|| "").trim())
-
-      .filter(Boolean)
-
- 
-)].sort((a,b)=>a.localeCompare(b,"ar"));
-
+  return [...new Set(
+    data
+      .map(r => String(r.source || "").trim())
+      .filter(Boolean)
+  )].sort((a,b)=>a.localeCompare(b,"ar"));
 }
 
 function sourceEnglishName(source){
-
-  const map = {
-
-    "سناب شات":"Snapchat",
-
-    "تيك توك":"TikTok",
-
-    "موقع المعهد":"Institute
-Website",
-
-    "اختبار تحديد المستوى":"Placement
-Test"
-
-  };
-
-  return map[source] ||
-source || "Unspecified";
-
+  const map = {
+    "سناب شات":"Snapchat",
+    "تيك توك":"TikTok",
+    "موقع المعهد":"Institute Website",
+    "اختبار تحديد المستوى":"Placement Test"
+  };
+  return map[source] || source || "Unspecified";
 }
 
 function loadLeads(){
 
- 
-db.collection("CustomerLeads")
+  db.collection("CustomerLeads")
+    .orderBy("createdAt","desc")
+    .onSnapshot(snap=>{
 
-   
-.orderBy("createdAt","desc")
+      LEADS = [];
 
-    .onSnapshot(snap=>{
+      snap.forEach(doc=>{
+        LEADS.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
 
-      LEADS = [];
+     refreshBranchOptions();
+     renderAll();
 
-      snap.forEach(doc=>{
-
-        LEADS.push({
-
-          id: doc.id,
-
-          ...doc.data()
-
-        });
-
-      });
-
-    
-refreshBranchOptions();
-
-     renderAll();
-
-    });
+    });
 
 }
 
 function loadBranches(){
-
- 
-db.collection("CustomerBranches")
-
-    .onSnapshot(snap=>{
-
-      const savedBranches = [];
-
-      snap.forEach(doc=>{
-
-        const name =
-normalizeBranchName(doc.data().name);
-
-        if(name)
-savedBranches.push(name);
-
-      });
-
-      BRANCHES = [...new
-Set([...DEFAULT_BRANCHES,...savedBranches])];
-
-      refreshBranchOptions();
-
-    },error=>{
-
-      console.error("Load
-branches error:",error);
-
-      BRANCHES =
-[...DEFAULT_BRANCHES];
-
-      refreshBranchOptions();
-
-    });
-
+  db.collection("CustomerBranches")
+    .onSnapshot(snap=>{
+      const savedBranches = [];
+      snap.forEach(doc=>{
+        const name = normalizeBranchName(doc.data().name);
+        if(name) savedBranches.push(name);
+      });
+      BRANCHES = [...new Set([...DEFAULT_BRANCHES,...savedBranches])];
+      refreshBranchOptions();
+    },error=>{
+      console.error("Load branches error:",error);
+      BRANCHES = [...DEFAULT_BRANCHES];
+      refreshBranchOptions();
+    });
 }
-
 function exportLeadsCSV(){
 
-  const rows =
-getFilteredLeads();
+  const rows = getFilteredLeads();
 
-  let csv =
-"\uFEFF";
+  let csv = "\uFEFF";
+  csv += "الاسم,رقم الجوال,الإيميل,مصدر العميل,الفرع,التاريخ والوقت\n";
 
-  csv += "الاسم,رقم الجوال,الإيميل,مصدر العميل,الفرع,التاريخ والوقت\n";
+  rows.forEach(r=>{
+    const line = [
+      r.customerName || "",
+      r.phone || "",
+      r.email || "",
+      r.source || "",
+      r.branch || "",
+      r.receiveDate || ""
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
 
-  rows.forEach(r=>{
+    csv += line + "\n";
+  });
 
-    const line = [
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
 
-      r.customerName ||
-"",
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "prudle_customers.csv";
+  a.click();
 
-      r.phone || "",
-
-      r.email || "",
-
-      r.source || "",
-
-      r.branch || "",
-
-      r.receiveDate ||
-""
-
-    ].map(v =>
-`"${String(v).replace(/"/g,'""')}"`).join(",");
-
-    csv += line +
-"\n";
-
-  });
-
-  const blob = new
-Blob([csv], {type:"text/csv;charset=utf-8;"});
-
-  const url =
-URL.createObjectURL(blob);
-
-  const a =
-document.createElement("a");
-
-  a.href = url;
-
-  a.download =
-"prudle_customers.csv";
-
-  a.click();
-
- 
-URL.revokeObjectURL(url);
-
+  URL.revokeObjectURL(url);
 }
 
 function parseCSVLine(line){
+  const result = [];
+  let current = "";
+  let insideQuotes = false;
 
-  const result = [];
+  for(let i=0; i<line.length; i++){
+    const char = line[i];
 
-  let current = "";
+    if(char === '"' && line[i+1] === '"'){
+      current += '"';
+      i++;
+    }else if(char === '"'){
+      insideQuotes = !insideQuotes;
+    }else if(char === "," && !insideQuotes){
+      result.push(current);
+      current = "";
+    }else{
+      current += char;
+    }
+  }
 
-  let insideQuotes = false;
-
-  for(let i=0;
-i<line.length; i++){
-
-    const char = line[i];
-
-    if(char === '"'
-&& line[i+1] === '"'){
-
-      current += '"';
-
-      i++;
-
-    }else if(char === '"'){
-
-      insideQuotes =
-!insideQuotes;
-
-    }else if(char === ","
-&& !insideQuotes){
-
-      result.push(current);
-
-      current = "";
-
-    }else{
-
-      current += char;
-
-    }
-
-  }
-
-  result.push(current);
-
-  return result;
-
+  result.push(current);
+  return result;
 }
 
 async function importLeadsCSV(event){
 
-  const file =
-event.target.files[0];
+  const file = event.target.files[0];
+  if(!file) return;
 
-  if(!file) return;
+  if(!confirm("هل تريد استيراد العملاء من الملف؟")){
+    event.target.value = "";
+    return;
+  }
 
-  if(!confirm("هل تريد استيراد العملاء من الملف؟")){
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(x => x.trim());
 
-    event.target.value =
-"";
+  if(lines.length <= 1){
+    alert("الملف فارغ أو غير صحيح");
+    return;
+  }
 
-    return;
+  let count = 0;
 
-  }
+  for(let i = 1; i < lines.length; i++){
 
-  const text = await
-file.text();
+    const cols = parseCSVLine(lines[i]);
 
-  const lines =
-text.split(/\r?\n/).filter(x => x.trim());
+    const customerName = (cols[0] || "").trim();
+    const phone = (cols[1] || "").trim();
+    const email = (cols[2] || "").trim();
+    const source = (cols[3] || "").trim();
+    const hasBranchColumn = cols.length >= 6;
+    const branch = hasBranchColumn ? (cols[4] || "").trim() : "";
 
-  if(lines.length <=
-1){
+    let receiveDate = (hasBranchColumn ? cols[5] : cols[4] || "").trim();
 
-    alert("الملف فارغ أو غير صحيح");
+    // إذا التاريخ فيه وقت مثل:
+    // 2026-06-25 8:19:45
+    // نخلي فقط التاريخ:
+    // 2026-06-25
 
-    return;
+    // تجاهل الصفوف التجريبية أو الفارغة
+    if(!customerName || !phone) continue;
 
-  }
+    if(
+      customerName === "FirstName" ||
+      customerName === "Sample Lead First Name"
+    ){
+      continue;
+    }
 
-  let count = 0;
+    await db.collection("CustomerLeads").add({
+      customerName,
+      phone,
+      email,
+      source,
+      branch,
+      receiveDate,
 
-  for(let i = 1; i <
-lines.length; i++){
+      department:"",
+      gender:"",
+      callsCount:0,
+      contacted:false,
+      placementDate:"",
+      attendedPlacement:false,
+      interested:false,
+      registered:false,
+      stage:"جديد",
+      paymentStatus:"",
+      notes:"",
 
-    const cols =
-parseCSVLine(lines[i]);
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
-    const customerName =
-(cols[0] || "").trim();
+    count++;
+  }
 
-    const phone = (cols[1] || "").trim();
-
-    const email = (cols[2] ||
-"").trim();
-
-    const source = (cols[3] ||
-"").trim();
-
-    const hasBranchColumn =
-cols.length >= 6;
-
-    const branch = hasBranchColumn
-? (cols[4] || "").trim() : "";
-
-    let receiveDate =
-(hasBranchColumn ? cols[5] : cols[4] || "").trim();
-
-    // إذا التاريخ فيه وقت مثل:
-
-    // 2026-06-25 8:19:45
-
-    // نخلي فقط التاريخ:
-
-    // 2026-06-25
-
-    // تجاهل الصفوف التجريبية أو الفارغة
-
-    if(!customerName ||
-!phone) continue;
-
-    if(
-
-      customerName ===
-"FirstName" ||
-
-      customerName ===
-"Sample Lead First Name"
-
-    ){
-
-      continue;
-
-    }
-
-    await
-db.collection("CustomerLeads").add({
-
-      customerName,
-
-      phone,
-
-      email,
-
-      source,
-
-      branch,
-
-      receiveDate,
-
-     
-department:"",
-
-      gender:"",
-
-      callsCount:0,
-
-      contacted:false,
-
-      placementDate:"",
-
-      attendedPlacement:false,
-
-      interested:false,
-
-      registered:false,
-
-      stage:"جديد",
-
-     
-paymentStatus:"",
-
-      notes:"",
-
-      createdAt:
-firebase.firestore.FieldValue.serverTimestamp(),
-
-      updatedAt:
-firebase.firestore.FieldValue.serverTimestamp()
-
-    });
-
-    count++;
-
-  }
-
-  event.target.value =
-"";
-
-  alert("تم استيراد " + count + " عميل بنجاح");
-
+  event.target.value = "";
+  alert("تم استيراد " + count + " عميل بنجاح");
 }
-
 async function exportExecutivePDF(){
 
-  const DATA =
-getFilteredLeads();
-
-  const filterInfo =
-getReportFilterInfo();
-
-  if(!DATA.length){
-
-    alert("لا توجد بيانات مطابقة للفلاتر الحالية");
-
-    return;
-
-  }
-
-  const oldButton =
-document.activeElement;
-
-  if(oldButton &&
-oldButton.tagName === "BUTTON"){
-
-    oldButton.disabled = true;
-
-    oldButton.textContent = "جاري إنشاء التقرير...";
-
-  }
-
-  function escapeHTML(value){
-
-    return String(value ??
-"")
-
-     
-.replace(/&/g,"&amp;")
-
-     
-.replace(/</g,"&lt;")
-
-     
-.replace(/>/g,"&gt;")
-
-     
-.replace(/"/g,"&quot;")
-
-     
-.replace(/'/g,"&#039;");
-
-  }
-
-  function
-formatDateTime(value){
-
-    if(!value) return
-"-";
-
-    const d = new Date(value);
-
-    if(isNaN(d.getTime())) return
-escapeHTML(value);
-
-    return
-d.toLocaleString("ar-SA",{
-
-     
-year:"numeric",month:"2-digit",day:"2-digit",
-
-     
-hour:"2-digit",minute:"2-digit"
-
-    });
-
-  }
-
-  const total =
-DATA.length;
-
-  const calls =
-DATA.reduce((sum,row)=>sum + Number(row.callsCount || 0),0);
-
-  const contacted =
-DATA.filter(row=>row.contacted).length;
-
-  const attended =
-DATA.filter(row=>row.attendedPlacement).length;
-
-  const interested = DATA.filter(row=>row.interested).length;
-
-  const registered =
-DATA.filter(row=>row.registered).length;
-
-  const paid =
-DATA.filter(row=>row.paymentStatus === "تم
-الدفع").length;
-
-  const unpaid =
-DATA.filter(row=>row.paymentStatus === "لم
-يتم الدفع").length;
-
-  const conversionRate =
-total ? Math.round((registered / total) * 100) : 0;
-
-  const attendanceRate = total ?
-Math.round((attended / total) * 100) : 0;
-
-  const paymentRate = total ?
-Math.round((paid / total) * 100) : 0;
-
-  const contactRate = total ?
-Math.round((contacted / total) * 100) : 0;
-
-  const sources =
-getDynamicSources(DATA);
-
-  const sourceRows =
-sources.map(source=>{
-
-    const rows =
-DATA.filter(row=>String(row.source || "").trim() === source);
-
-    const leads = rows.length;
-
-    const sourceCalls =
-rows.reduce((sum,row)=>sum + Number(row.callsCount || 0),0);
-
-    const sourceContacted =
-rows.filter(row=>row.contacted).length;
-
-    const sourceAttend =
-rows.filter(row=>row.attendedPlacement).length;
-
-    const sourceRegistered =
-rows.filter(row=>row.registered).length;
-
-    const sourcePaid =
-rows.filter(row=>row.paymentStatus === "تم
-الدفع").length;
-
-    const rate = leads ?
-Math.round((sourceRegistered / leads) * 100) : 0;
-
-    return `
-
-      <tr>
-
-       
-<td>${escapeHTML(source || "غير
-محدد")}</td>
-
-       
-<td>${leads}</td>
-
-       
-<td>${sourceCalls}</td>
-
-       
-<td>${sourceContacted}</td>
-
-       
-<td>${sourceAttend}</td>
-
-       
-<td>${sourceRegistered}</td>
-
-       
-<td>${sourcePaid}</td>
-
-        <td>${rate}%</td>
-
-      </tr>`;
-
-  }).join("");
-
-  const departmentNames =
-[...new Set(
-
-   
-DATA.map(row=>String(row.department || "غير محدد").trim() || "غير محدد")
-
- 
-)].sort((a,b)=>a.localeCompare(b,"ar"));
-
-  const departmentRows =
-departmentNames.map(department=>{
-
-    const rows =
-DATA.filter(row=>(String(row.department || "غير
-محدد").trim() || "غير
-محدد") === department);
-
-    return `
-
-      <tr>
-
-       
-<td>${escapeHTML(department)}</td>
-
-       
-<td>${rows.length}</td>
-
-       
-<td>${rows.filter(row=>row.attendedPlacement).length}</td>
-
-       
-<td>${rows.filter(row=>row.registered).length}</td>
-
-       
-<td>${rows.filter(row=>row.paymentStatus === "تم الدفع").length}</td>
-
-      </tr>`;
-
-  }).join("");
-
-  const customerRows =
-DATA.map((row,index)=>`
-
-    <tr>
-
-      <td>${index +
-1}</td>
-
-     
-<td>${escapeHTML(row.customerName || "-")}</td>
-
-      <td
-class="ltr">${escapeHTML(row.phone || "-")}</td>
-
-     
-<td>${escapeHTML(row.source || "-")}</td>
-
-     
-<td>${escapeHTML(row.branch || "-")}</td>
-
-     
-<td>${escapeHTML(row.department || "-")}</td>
-
-     
-<td>${Number(row.callsCount || 0)}</td>
-
-     
-<td>${row.attendedPlacement ? "نعم"
-: "لا"}</td>
-
-      <td>${row.registered
-? "نعم" : "لا"}</td>
-
-     
-<td>${escapeHTML(row.paymentStatus || "-")}</td>
-
-     
-<td>${escapeHTML(row.stage || "-")}</td>
-
-     
-<td>${formatDateTime(row.receiveDate)}</td>
-
-     
-<td>${escapeHTML(row.notes || "-")}</td>
-
-    </tr>`).join("");
-
-  const report =
-document.createElement("div");
-
-  report.id =
-"arabicPdfReport";
-
-  report.dir = "rtl";
-
-  report.innerHTML = `
-
-    <style>
-
-      #arabicPdfReport{
-
-        position:fixed;
-
-        left:-100000px;
-
-        top:0;
-
-        width:1120px;
-
-        background:#ffffff;
-
-        color:#1f2937;
-
-       
-font-family:'Tajawal',Tahoma,Arial,sans-serif;
-
-        direction:rtl;
-
-        text-align:right;
-
-        padding:0 0 36px;
-
-        box-sizing:border-box;
-
-      }
-
-      #arabicPdfReport
-*{box-sizing:border-box}
-
-      #arabicPdfReport
-.report-header{
-
-        background:#164478;
-
-        color:#fff;
-
-        padding:28px 34px;
-
-        display:flex;
-
-       
-justify-content:space-between;
-
-        align-items:flex-start;
-
-        gap:20px;
-
-      }
-
-      #arabicPdfReport
-h1{margin:0 0 8px;font-size:30px;color:#fff;text-align:right}
-
-      #arabicPdfReport
-.sub{font-size:15px;line-height:1.8;opacity:.95}
-
-      #arabicPdfReport
-.generated{direction:ltr;text-align:left;font-size:13px;white-space:nowrap}
-
-      #arabicPdfReport
-.section{padding:26px 30px 0}
-
-      #arabicPdfReport h2{margin:0
-0 14px;color:#164478;font-size:22px;border-right:5px solid
-#164478;padding-right:10px}
-
-      #arabicPdfReport
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-
-      #arabicPdfReport
-.kpi{background:linear-gradient(135deg,#164478,#1e5da8);color:#fff;border-radius:14px;padding:18px;text-align:center}
-
-      #arabicPdfReport .kpi
-span{display:block;font-size:14px;margin-bottom:8px}
-
-      #arabicPdfReport .kpi
-b{display:block;font-size:28px}
-
-      #arabicPdfReport
-.two-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-
-      #arabicPdfReport
-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
-
-      #arabicPdfReport
-th,#arabicPdfReport td{border:1px solid #d9e1ea;padding:8px
-7px;text-align:center;vertical-align:middle;font-size:12px;line-height:1.5;word-break:break-word}
-
-      #arabicPdfReport
-th{background:#164478;color:#fff;font-weight:800}
-
-      #arabicPdfReport tbody
-tr:nth-child(even) td{background:#f5f8fc}
-
-      #arabicPdfReport .details
-th,#arabicPdfReport .details td{font-size:10.5px;padding:6px 4px}
-
-      #arabicPdfReport
-.ltr{direction:ltr;unicode-bidi:embed}
-
-      #arabicPdfReport
-.page-break{height:24px;page-break-before:always}
-
-      #arabicPdfReport
-.footer{margin-top:22px;padding:12px
-30px;text-align:center;color:#64748b;font-size:12px}
-
-    </style>
-
-    <div
-class="report-header">
-
-      <div>
-
-        <h1>تقرير إدارة العملاء - معهد برودل</h1>
-
-        <div
-class="sub">
-
-          الفرع:
-${escapeHTML(filterInfo.branch)}<br>
-
-          القسم:
-${escapeHTML(filterInfo.department)}<br>
-
-          الفترة: ${escapeHTML(filterInfo.dateLabel)}
-
-        </div>
-
-      </div>
-
-      <div
-class="generated">
-
-        تاريخ
-الإنشاء<br>
-
-        ${new
-Date().toLocaleString("ar-SA")}
-
-      </div>
-
-    </div>
-
-    <div
-class="section">
-
-      <h2>الملخص التنفيذي</h2>
-
-      <div
-class="kpis">
-
-        <div
-class="kpi"><span>إجمالي العملاء</span><b>${total}</b></div>
-
-        <div
-class="kpi"><span>عدد الاتصالات</span><b>${calls}</b></div>
-
-        <div
-class="kpi"><span>تم التواصل</span><b>${contacted}</b></div>
-
-        <div
-class="kpi"><span>حضور الاختبار</span><b>${attended}</b></div>
-
-        <div
-class="kpi"><span>المهتمون</span><b>${interested}</b></div>
-
-        <div
-class="kpi"><span>المسجلون</span><b>${registered}</b></div>
-
-        <div
-class="kpi"><span>تم الدفع</span><b>${paid}</b></div>
-
-        <div
-class="kpi"><span>نسبة التسجيل</span><b>${conversionRate}%</b></div>
-
-      </div>
-
-    </div>
-
-    <div
-class="section two-cols">
-
-      <div>
-
-        <h2>مؤشرات الأداء</h2>
-
-        <table>
-
-         
-<thead><tr><th>المؤشر</th><th>العدد</th><th>النسبة</th></tr></thead>
-
-          <tbody>
-
-            <tr><td>تم التواصل</td><td>${contacted}</td><td>${contactRate}%</td></tr>
-
-           
-<tr><td>حضور الاختبار</td><td>${attended}</td><td>${attendanceRate}%</td></tr>
-
-           
-<tr><td>المسجلون</td><td>${registered}</td><td>${conversionRate}%</td></tr>
-
-           
-<tr><td>تم الدفع</td><td>${paid}</td><td>${paymentRate}%</td></tr>
-
-           
-<tr><td>لم يتم الدفع</td><td>${unpaid}</td><td>${total
-? Math.round((unpaid/total)*100) : 0}%</td></tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      <div>
-
-        <h2>الأداء حسب القسم</h2>
-
-        <table>
-
-         
-<thead><tr><th>القسم</th><th>العملاء</th><th>الحضور</th><th>المسجلون</th><th>الدافعون</th></tr></thead>
-
-         
-<tbody>${departmentRows || '<tr><td
-colspan="5">لا توجد بيانات</td></tr>'}</tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-    <div
-class="section">
-
-      <h2>الأداء حسب مصدر العميل</h2>
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>المصدر</th><th>العملاء</th><th>الاتصالات</th><th>تم التواصل</th>
-
-            <th>الحضور</th><th>المسجلون</th><th>الدافعون</th><th>نسبة التسجيل</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>${sourceRows
-|| '<tr><td colspan="8">لا
-توجد بيانات</td></tr>'}</tbody>
-
-      </table>
-
-    </div>
-
-    <div
-class="section">
-
-      <div
-class="page-break"></div>
-
-      <h2>تفاصيل العملاء المطابقة للفلاتر</h2>
-
-      <table
-class="details">
-
-        <thead>
-
-          <tr>
-
-            <th
-style="width:3%">م</th>
-
-            <th
-style="width:11%">اسم العميل</th>
-
-            <th
-style="width:9%">الجوال</th>
-
-            <th
-style="width:9%">المصدر</th>
-
-            <th
-style="width:7%">الفرع</th>
-
-            <th
-style="width:7%">القسم</th>
-
-            <th
-style="width:5%">الاتصالات</th>
-
-            <th
-style="width:6%">الحضور</th>
-
-            <th
-style="width:6%">مسجل</th>
-
-            <th
-style="width:7%">الدفع</th>
-
-            <th
-style="width:9%">الحالة</th>
-
-            <th
-style="width:11%">تاريخ الاستلام</th>
-
-            <th
-style="width:16%">ملاحظات</th>
-
-          </tr>
-
-        </thead>
-
-       
-<tbody>${customerRows}</tbody>
-
-      </table>
-
-    </div>
-
-    <div
-class="footer">Prudle Institute CRM Report</div>
-
-  `;
-
- 
-document.body.appendChild(report);
-
-  try{
-
-    if(document.fonts &&
-document.fonts.ready){
-
-      await document.fonts.ready;
-
-    }
-
-    await new
-Promise(resolve=>setTimeout(resolve,300));
-
-    const canvas = await
-html2canvas(report,{
-
-      scale:3,
-
-      useCORS:true,
-
-     
-backgroundColor:"#ffffff",
-
-      logging:false,
-
-      windowWidth:1120,
-
-      scrollX:0,
-
-      scrollY:0
-
-    });
-
-    const { jsPDF } =
-window.jspdf;
-
-    const pdf = new jsPDF(
-
-      "portrait",
-
-      "pt",
-
-      "a4"
-
-    );
-
-    const pageWidth =
-
-     
-pdf.internal.pageSize.getWidth();
-
-    const pageHeight =
-
-     
-pdf.internal.pageSize.getHeight();
-
-    const imgWidth =
-pageWidth;
-
-    const imgHeight =
-
-      canvas.height * imgWidth /
-canvas.width;
-
-    const imgData =
-
-     
-canvas.toDataURL("image/png",1.0);
-
-    let heightLeft =
-imgHeight;
-
-    let position = 0;
-
-    let pageNumber = 1;
-
-    pdf.addImage(
-
-      imgData,
-
-      "PNG",
-
-      0,
-
-      position,
-
-      imgWidth,
-
-      imgHeight,
-
-      undefined,
-
-      "FAST"
-
-    );
-
-    heightLeft -=
-pageHeight;
-
-    while(heightLeft >
-0){
-
-      position =
-
-        heightLeft - imgHeight;
-
-      pdf.addPage(
-
-        "a4",
-
-        "portrait"
-
-      );
-
-      pdf.addImage(
-
-        imgData,
-
-        "PNG",
-
-        0,
-
-        position,
-
-        imgWidth,
-
-        imgHeight,
-
-        undefined,
-
-        "FAST"
-
-      );
-
-      heightLeft -=
-pageHeight;
-
-      pageNumber++;
-
-    }
-
-    const
-filenameDepartment =
-
-      filterInfo.department ===
-"الكل"
-
-        ?
-"All_Departments"
-
-        :
-String(filterInfo.department)
-
-           
-.replace(/\s+/g,"_")
-
-           
-.replace(/[^\w\u0600-\u06FF-]/g,"");
-
-    pdf.save(
-
-     
-"Prudle_CRM_Report_" +
-
-      filenameDepartment +
-
-      "_" +
-
-      filterInfo.dateKey +
-
-      ".pdf"
-
-    );
-
-  }catch(error){
-
-    console.error(
-
-      "PDF export
-error:",
-
-      error
-
-    );
-
-    alert(
-
-      "حدث خطأ أثناء إنشاء تقرير PDF"
-
-    );
-
-  }finally{
-
-    if(report &&
-report.parentNode){
-
-      report.remove();
-
-    }
-
-    if(
-
-      oldButton &&
-
-      oldButton.tagName ===
-"BUTTON"
-
-    ){
-
-      oldButton.disabled =
-false;
-
-      oldButton.textContent =
-
-        "تقرير إداري PDF";
-
-    }
-
-  }
+  const DATA = getFilteredLeads();
+  const filterInfo = getReportFilterInfo();
+
+  if(!DATA.length){
+    alert("لا توجد بيانات مطابقة للفلاتر الحالية");
+    return;
+  }
+
+  const oldButton = document.activeElement;
+  if(oldButton && oldButton.tagName === "BUTTON"){
+    oldButton.disabled = true;
+    oldButton.textContent = "جاري إنشاء التقرير...";
+  }
+
+  function escapeHTML(value){
+    return String(value ?? "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+  }
+
+  function formatDateTime(value){
+    if(!value) return "-";
+    const d = new Date(value);
+    if(isNaN(d.getTime())) return escapeHTML(value);
+    return d.toLocaleString("ar-SA",{
+      year:"numeric",month:"2-digit",day:"2-digit",
+      hour:"2-digit",minute:"2-digit"
+    });
+  }
+
+  const total = DATA.length;
+  const calls = DATA.reduce((sum,row)=>sum + Number(row.callsCount || 0),0);
+  const contacted = DATA.filter(row=>row.contacted).length;
+  const attended = DATA.filter(row=>row.attendedPlacement).length;
+  const interested = DATA.filter(row=>row.interested).length;
+  const registered = DATA.filter(row=>row.registered).length;
+  const paid = DATA.filter(row=>row.paymentStatus === "تم الدفع").length;
+  const unpaid = DATA.filter(row=>row.paymentStatus === "لم يتم الدفع").length;
+
+  const conversionRate = total ? Math.round((registered / total) * 100) : 0;
+  const attendanceRate = total ? Math.round((attended / total) * 100) : 0;
+  const paymentRate = total ? Math.round((paid / total) * 100) : 0;
+  const contactRate = total ? Math.round((contacted / total) * 100) : 0;
+
+  const sources = getDynamicSources(DATA);
+  const sourceRows = sources.map(source=>{
+    const rows = DATA.filter(row=>String(row.source || "").trim() === source);
+    const leads = rows.length;
+    const sourceCalls = rows.reduce((sum,row)=>sum + Number(row.callsCount || 0),0);
+    const sourceContacted = rows.filter(row=>row.contacted).length;
+    const sourceAttend = rows.filter(row=>row.attendedPlacement).length;
+    const sourceRegistered = rows.filter(row=>row.registered).length;
+    const sourcePaid = rows.filter(row=>row.paymentStatus === "تم الدفع").length;
+    const rate = leads ? Math.round((sourceRegistered / leads) * 100) : 0;
+
+    return `
+      <tr>
+        <td>${escapeHTML(source || "غير محدد")}</td>
+        <td>${leads}</td>
+        <td>${sourceCalls}</td>
+        <td>${sourceContacted}</td>
+        <td>${sourceAttend}</td>
+        <td>${sourceRegistered}</td>
+        <td>${sourcePaid}</td>
+        <td>${rate}%</td>
+      </tr>`;
+  }).join("");
+
+  const departmentNames = [...new Set(
+    DATA.map(row=>String(row.department || "غير محدد").trim() || "غير محدد")
+  )].sort((a,b)=>a.localeCompare(b,"ar"));
+
+  const departmentRows = departmentNames.map(department=>{
+    const rows = DATA.filter(row=>(String(row.department || "غير محدد").trim() || "غير محدد") === department);
+    return `
+      <tr>
+        <td>${escapeHTML(department)}</td>
+        <td>${rows.length}</td>
+        <td>${rows.filter(row=>row.attendedPlacement).length}</td>
+        <td>${rows.filter(row=>row.registered).length}</td>
+        <td>${rows.filter(row=>row.paymentStatus === "تم الدفع").length}</td>
+      </tr>`;
+  }).join("");
+
+  const customerRows = DATA.map((row,index)=>`
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHTML(row.customerName || "-")}</td>
+      <td class="ltr">${escapeHTML(row.phone || "-")}</td>
+      <td>${escapeHTML(row.source || "-")}</td>
+      <td>${escapeHTML(row.branch || "-")}</td>
+      <td>${escapeHTML(row.department || "-")}</td>
+      <td>${Number(row.callsCount || 0)}</td>
+      <td>${row.attendedPlacement ? "نعم" : "لا"}</td>
+      <td>${row.registered ? "نعم" : "لا"}</td>
+      <td>${escapeHTML(row.paymentStatus || "-")}</td>
+      <td>${escapeHTML(row.stage || "-")}</td>
+      <td>${formatDateTime(row.receiveDate)}</td>
+      <td>${escapeHTML(row.notes || "-")}</td>
+    </tr>`).join("");
+
+  const report = document.createElement("div");
+  report.id = "arabicPdfReport";
+  report.dir = "rtl";
+  report.innerHTML = `
+    <style>
+      #arabicPdfReport{
+        position:fixed;
+        left:-100000px;
+        top:0;
+        width:1120px;
+        background:#ffffff;
+        color:#1f2937;
+        font-family:'Tajawal',Tahoma,Arial,sans-serif;
+        direction:rtl;
+        text-align:right;
+        padding:0 0 36px;
+        box-sizing:border-box;
+      }
+      #arabicPdfReport *{box-sizing:border-box}
+      #arabicPdfReport .report-header{
+        background:#164478;
+        color:#fff;
+        padding:28px 34px;
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:20px;
+      }
+      #arabicPdfReport h1{margin:0 0 8px;font-size:30px;color:#fff;text-align:right}
+      #arabicPdfReport .sub{font-size:15px;line-height:1.8;opacity:.95}
+      #arabicPdfReport .generated{direction:ltr;text-align:left;font-size:13px;white-space:nowrap}
+      #arabicPdfReport .section{padding:26px 30px 0}
+      #arabicPdfReport h2{margin:0 0 14px;color:#164478;font-size:22px;border-right:5px solid #164478;padding-right:10px}
+      #arabicPdfReport .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+      #arabicPdfReport .kpi{background:linear-gradient(135deg,#164478,#1e5da8);color:#fff;border-radius:14px;padding:18px;text-align:center}
+      #arabicPdfReport .kpi span{display:block;font-size:14px;margin-bottom:8px}
+      #arabicPdfReport .kpi b{display:block;font-size:28px}
+      #arabicPdfReport .two-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+      #arabicPdfReport table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
+      #arabicPdfReport th,#arabicPdfReport td{border:1px solid #d9e1ea;padding:8px 7px;text-align:center;vertical-align:middle;font-size:12px;line-height:1.5;word-break:break-word}
+      #arabicPdfReport th{background:#164478;color:#fff;font-weight:800}
+      #arabicPdfReport tbody tr:nth-child(even) td{background:#f5f8fc}
+      #arabicPdfReport .details th,#arabicPdfReport .details td{font-size:10.5px;padding:6px 4px}
+      #arabicPdfReport .ltr{direction:ltr;unicode-bidi:embed}
+      #arabicPdfReport .page-break{height:24px;page-break-before:always}
+      #arabicPdfReport .footer{margin-top:22px;padding:12px 30px;text-align:center;color:#64748b;font-size:12px}
+    </style>
+
+    <div class="report-header">
+      <div>
+        <h1>تقرير إدارة العملاء - معهد برودل</h1>
+        <div class="sub">
+          الفرع: ${escapeHTML(filterInfo.branch)}<br>
+          القسم: ${escapeHTML(filterInfo.department)}<br>
+          الفترة: ${escapeHTML(filterInfo.dateLabel)}
+        </div>
+      </div>
+      <div class="generated">
+        تاريخ الإنشاء<br>
+        ${new Date().toLocaleString("ar-SA")}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>الملخص التنفيذي</h2>
+      <div class="kpis">
+        <div class="kpi"><span>إجمالي العملاء</span><b>${total}</b></div>
+        <div class="kpi"><span>عدد الاتصالات</span><b>${calls}</b></div>
+        <div class="kpi"><span>تم التواصل</span><b>${contacted}</b></div>
+        <div class="kpi"><span>حضور الاختبار</span><b>${attended}</b></div>
+        <div class="kpi"><span>المهتمون</span><b>${interested}</b></div>
+        <div class="kpi"><span>المسجلون</span><b>${registered}</b></div>
+        <div class="kpi"><span>تم الدفع</span><b>${paid}</b></div>
+        <div class="kpi"><span>نسبة التسجيل</span><b>${conversionRate}%</b></div>
+      </div>
+    </div>
+
+    <div class="section two-cols">
+      <div>
+        <h2>مؤشرات الأداء</h2>
+        <table>
+          <thead><tr><th>المؤشر</th><th>العدد</th><th>النسبة</th></tr></thead>
+          <tbody>
+            <tr><td>تم التواصل</td><td>${contacted}</td><td>${contactRate}%</td></tr>
+            <tr><td>حضور الاختبار</td><td>${attended}</td><td>${attendanceRate}%</td></tr>
+            <tr><td>المسجلون</td><td>${registered}</td><td>${conversionRate}%</td></tr>
+            <tr><td>تم الدفع</td><td>${paid}</td><td>${paymentRate}%</td></tr>
+            <tr><td>لم يتم الدفع</td><td>${unpaid}</td><td>${total ? Math.round((unpaid/total)*100) : 0}%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h2>الأداء حسب القسم</h2>
+        <table>
+          <thead><tr><th>القسم</th><th>العملاء</th><th>الحضور</th><th>المسجلون</th><th>الدافعون</th></tr></thead>
+          <tbody>${departmentRows || '<tr><td colspan="5">لا توجد بيانات</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>الأداء حسب مصدر العميل</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>المصدر</th><th>العملاء</th><th>الاتصالات</th><th>تم التواصل</th>
+            <th>الحضور</th><th>المسجلون</th><th>الدافعون</th><th>نسبة التسجيل</th>
+          </tr>
+        </thead>
+        <tbody>${sourceRows || '<tr><td colspan="8">لا توجد بيانات</td></tr>'}</tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="page-break"></div>
+      <h2>تفاصيل العملاء المطابقة للفلاتر</h2>
+      <table class="details">
+        <thead>
+          <tr>
+            <th style="width:3%">م</th>
+            <th style="width:11%">اسم العميل</th>
+            <th style="width:9%">الجوال</th>
+            <th style="width:9%">المصدر</th>
+            <th style="width:7%">الفرع</th>
+            <th style="width:7%">القسم</th>
+            <th style="width:5%">الاتصالات</th>
+            <th style="width:6%">الحضور</th>
+            <th style="width:6%">مسجل</th>
+            <th style="width:7%">الدفع</th>
+            <th style="width:9%">الحالة</th>
+            <th style="width:11%">تاريخ الاستلام</th>
+            <th style="width:16%">ملاحظات</th>
+          </tr>
+        </thead>
+        <tbody>${customerRows}</tbody>
+      </table>
+    </div>
+
+    <div class="footer">Prudle Institute CRM Report</div>
+  `;
+
+  document.body.appendChild(report);
+
+  try{
+    if(document.fonts && document.fonts.ready){
+      await document.fonts.ready;
+    }
+
+    await new Promise(resolve=>setTimeout(resolve,300));
+
+    const canvas = await html2canvas(report,{
+      scale:3,
+      useCORS:true,
+      backgroundColor:"#ffffff",
+      logging:false,
+      windowWidth:1120,
+      scrollX:0,
+      scrollY:0
+    });
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF(
+      "portrait",
+      "pt",
+      "a4"
+    );
+
+    const pageWidth =
+      pdf.internal.pageSize.getWidth();
+
+    const pageHeight =
+      pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth;
+
+    const imgHeight =
+      canvas.height * imgWidth / canvas.width;
+
+    const imgData =
+      canvas.toDataURL("image/png",1.0);
+
+    let heightLeft = imgHeight;
+    let position = 0;
+    let pageNumber = 1;
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      position,
+      imgWidth,
+      imgHeight,
+      undefined,
+      "FAST"
+    );
+
+    heightLeft -= pageHeight;
+
+    while(heightLeft > 0){
+
+      position =
+        heightLeft - imgHeight;
+
+      pdf.addPage(
+        "a4",
+        "portrait"
+      );
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        position,
+        imgWidth,
+        imgHeight,
+        undefined,
+        "FAST"
+      );
+
+      heightLeft -= pageHeight;
+      pageNumber++;
+    }
+
+    const filenameDepartment =
+      filterInfo.department === "الكل"
+        ? "All_Departments"
+        : String(filterInfo.department)
+            .replace(/\s+/g,"_")
+            .replace(/[^\w\u0600-\u06FF-]/g,"");
+
+    pdf.save(
+      "Prudle_CRM_Report_" +
+      filenameDepartment +
+      "_" +
+      filterInfo.dateKey +
+      ".pdf"
+    );
+
+  }catch(error){
+
+    console.error(
+      "PDF export error:",
+      error
+    );
+
+    alert(
+      "حدث خطأ أثناء إنشاء تقرير PDF"
+    );
+
+  }finally{
+
+    if(report && report.parentNode){
+      report.remove();
+    }
+
+    if(
+      oldButton &&
+      oldButton.tagName === "BUTTON"
+    ){
+      oldButton.disabled = false;
+      oldButton.textContent =
+        "تقرير إداري PDF";
+    }
+
+  }
 
 }
 
 loadBranches();
-
 loadLeads();
-
 </script>
 
 </body>
-
 </html>
